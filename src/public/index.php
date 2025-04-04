@@ -7,6 +7,7 @@ use App\Controllers\HomeController;
 use App\Controllers\RegisterController;
 use App\Controllers\LoginController;
 use App\Controllers\UsuarioController;
+use App\Controllers\PartidaController;
 
 use App\Middleware\AuthMiddleware;
 
@@ -28,6 +29,8 @@ $app->group('/usuarios/{usuario}', function ($route) {              //Esto basic
     $route->put('', [UsuarioController::class, 'editarUsuario']);
     $route->get('', [UsuarioController::class, 'obtenerUsuario']);
 })->add(new AuthMiddleware());                                      //Le agrega el autentificador de token para saber si el usuario que hace la peticion tiene o no permisos para hacerlo.
+
+$app->post('/partidas', [new PartidaController(), 'crearPartida'])->add(new AuthMiddleware());
 
 $app->run();
 ?>
