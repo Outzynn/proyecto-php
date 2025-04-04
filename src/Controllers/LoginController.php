@@ -29,7 +29,6 @@ class LoginController {
         }
 
         try {
-            //Buscamos el usuario en la base de datos SOLO por sus credenciales
             $stmt = $this->pdo->prepare("SELECT id, password, token, vencimiento_token FROM usuario WHERE usuario = :usuario AND nombre = :nombre");
             $stmt->execute([
                 ':usuario' => $usuario,
