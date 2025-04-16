@@ -6,6 +6,7 @@ use Slim\Factory\AppFactory;
 use App\Controllers\HomeController;
 use App\Controllers\RegisterController;
 use App\Controllers\LoginController;
+use App\Controllers\MazosController;
 use App\Controllers\UsuarioController;
 use App\Controllers\PartidaController;
 
@@ -31,6 +32,11 @@ $app->group('/usuarios/{usuario}', function ($route) {              //Esto basic
 })->add(new AuthMiddleware());                                      //Le agrega el autentificador de token para saber si el usuario que hace la peticion tiene o no permisos para hacerlo.
 
 $app->post('/partidas', [new PartidaController(), 'crearPartida'])->add(new AuthMiddleware());
+
+$app->post('/mazos', [new MazosController(), 'crearMazo'])->add(new AuthMiddleware());
+$app->delete('/mazos/{mazo}', [new MazosController(), 'borrarMazo'])->add(new AuthMiddleware());
+
+$app->get('/usuarios/{usuario}/mazos', [new MazosController(),'listadoMazos'])->add(new AuthMiddleware());
 
 $app->run();
 ?>
