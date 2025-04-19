@@ -99,30 +99,48 @@ class MazosController{
     public function borrarMazo($req, $res, $args)
     {
         $usuarioID = $req->getAttribute('usuarioId');
-        $nombre_mazo = $args['mazo'];
-    
-        // Buscar el ID del mazo asociado al usuario y al nombre del mazo
-        $idDelMazo = $this->encontrarID($usuarioID, $nombre_mazo, $this->pdo);
-    
-        // Si no se encuentra el mazo o el usuario no tiene permisos, devolver error
+        $idDelMazo = $args['mazo'];
+
+        // Verificar que el argumento exista.
         if (!$idDelMazo) {
-            return ResponseUtil::crearRespuesta($res, ["error" => "El mazo no existe o no tienes permisos para borrarlo."], 400);
+            return ResponseUtil::crearRespuesta($res, ["error" => "El mazo no debe ser nulo."], 400);
         }
+
+        //verificar si existe el mazo y tengo permisos para borrar este mazo.
+
+        try{
+            $sql = "SELECT COUNT(*) FROM mazo WHERE id = :mazo_id AND usuario_id = :id_user";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([
+                ':mazo_id' => $idDelMazo,
+                ':id_user' => $usuarioID,
+            ]);
+            $existe = $stmt->fetchColumn();
+
+            if(!$existe){
+                return ResponseUtil::crearRespuesta($res, ["error" => "El mazo no existe o no le pertenece al usuario logueado.",401]);    
+            }
+
+            // Verificar si el mazo está en uso en alguna partida
+
+            $sql = "SELECT COUNT(*) FROM partida WHERE mazo_id = :mazo_id";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([ ':mazo_id' => $idDelMazo ]);
+            $enUso = $stmt->fetchColumn();
+        
+            // Si el mazo está en uso, no se puede borrar
+            if ($enUso > 0) {
+                return ResponseUtil::crearRespuesta($res, ["error" => "El mazo está en uso, no se puede borrar."], 400);
+            }
     
-        // Verificar si el mazo está en uso en alguna partida
-        $sql = "SELECT COUNT(*) FROM partida WHERE mazo_id = :mazo_id";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([ ':mazo_id' => $idDelMazo ]);
-        $enUso = $stmt->fetchColumn();
-    
-        // Si el mazo está en uso, no se puede borrar
-        if ($enUso > 0) {
-            return ResponseUtil::crearRespuesta($res, ["error" => "El mazo está en uso, no se puede borrar."], 400);
+            // Si no está en uso, proceder con el borrado
+            return $this->borrar($idDelMazo, $this->pdo, $res);
+
+        }catch (\PDOException $e) {
+            return ResponseUtil::crearRespuesta($res, ['error' => "Error al procesar la solicitud: " . $e->getMessage()], 500);
         }
-    
-        // Si no está en uso, proceder con el borrado
-        return $this->borrar($idDelMazo, $this->pdo, $res);
     }
+
     
     private function borrar($idDelMazo, $pdo, $res)
     {
@@ -145,36 +163,15 @@ class MazosController{
         }
     }
     
-    private function encontrarID($usuario, $mazo, $pdo)
-    {
-        // Buscar el ID del mazo según el usuario y el nombre
-        $sql = "SELECT id FROM mazo WHERE usuario_id = :usuario_id AND nombre = :nombre";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([ 'usuario_id' => $usuario, 'nombre' => $mazo ]);
-        $idDelMazo = $stmt->fetchColumn();
-    
-        // Si se encuentra el mazo, devolver el ID, de lo contrario, devolver false
-        return $idDelMazo ?: false;
-    }
 
-    public function listadoMazos($req,$res,$args){
-        $usuario = $args['usuario'];
+    public function listadoMazos($req,$res,$args){ //preguntar en clases si debo pasar por argumento el usuario si ya lo obtengo del Auth
+        $usuario = $args['id'];
         $usuario_auth = $req->getAttribute('usuarioId');
 
-        try{
-            $sql = "SELECT nombre FROM usuario WHERE id = :id";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([
-                ':id' => $usuario_auth
-            ]);
-            $nombre = $stmt->fetchColumn();
-
-            if ($nombre != $usuario){
-                return ResponseUtil::crearRespuesta($res, ["Error: " => "No tienes permiso para obtener los mazos de este usuario",401]);
-            }
-        }catch(\PDOException $e) {
-            return ResponseUtil::crearRespuesta($res, ['error' => "Error al obtener el usuario de la DB: " . $e->getMessage()], 500);
+        if ($usuario_auth != $usuario){
+            return ResponseUtil::crearRespuesta($res, ["Error: " => "No tienes permiso para obtener los mazos de este usuario",401]);
         }
+
         try{
            $sql = "SELECT id,nombre FROM mazo WHERE usuario_id = :usuarioId";
            $stmt = $this->pdo->prepare($sql);
@@ -183,10 +180,13 @@ class MazosController{
            ]);
            $mazos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+           if (!$mazos){ //probar si esto anda sino buscar otra forma
+                return ResponseUtil::crearRespuesta($res,["Mensaje:" => "Este usuario no tiene mazos creados."]);
+           }
            return ResponseUtil::crearRespuesta($res,$mazos);
 
         }catch(\PDOException $e) {
-            return ResponseUtil::crearRespuesta($res, ['error' => "Error al traer los mazos de la DB: " . $e->getMessage()], 500);
+            return ResponseUtil::crearRespuesta($res, ['error' => "Error al procesar la solicitud: " . $e->getMessage()], 500);
         }
-    }    
+    }
 }
