@@ -1,58 +1,59 @@
 <?php
 namespace App\Controllers;
 
-use PDO;
 use App\Utils\ResponseUtil;
-use App\Utils\DataBase;
+use App\Models\PartidaModel;
 
 class PartidaController {
-    private $pdo;
+    private $partidaModel;
 
     public function __construct() {
-        $this->pdo = DataBase::getInstance();
-    }
-
-    private function pertenece(int $usuarioId, int $idMazo) {
-        $sql = "SELECT usuario_id FROM mazo WHERE id = :id";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['id' => $idMazo]);
-        $idEncontrado = $stmt->fetchColumn();
-
-        return (int)$idEncontrado === $usuarioId;
+        $this->partidaModel = new PartidaModel();
     }
 
     public function crearPartida($req, $res) {
         $data = $req->getParsedBody();
-        $idMazo = $data['idDelMazo'];
+        $idMazo = $data['idDelMazo'] ?? null;
         $usuarioId = $req->getAttribute("usuarioId");
 
-        if (!$this->pertenece($usuarioId, $idMazo)) {
+        if (!$idMazo) {
+            return ResponseUtil::crearRespuesta($res, ["error" => "Falta el ID del mazo"], 400);
+        }
+
+        if (!$this->partidaModel->mazoPerteneceAlUsuario($idMazo, $usuarioId)) {
             return ResponseUtil::crearRespuesta($res, ["error" => "El mazo no pertenece al usuario logeado."], 401);
         }
 
-        $sql = "INSERT INTO partida (usuario_id, fecha, mazo_id, estado) VALUES (:usuarioId, NOW(), :idDelMazo, :estado)";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            'usuarioId' => $usuarioId,
-            'idDelMazo' => $idMazo,
-            'estado' => "en_curso"
-        ]);
+        try {
+            $partidaId = $this->partidaModel->crearPartida($usuarioId, $idMazo);
+            $this->partidaModel->ponerCartasEnMano($idMazo);
+            $cartas = $this->partidaModel->obtenerCartasDelMazo($idMazo);
 
-        $partidaId = $this->pdo->lastInsertId();
-
-        $sql = "UPDATE mazo_carta SET estado = 'en_mano' WHERE mazo_id = :idMazo";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['idMazo' => $idMazo]);
-
-        $sql = "SELECT carta_id FROM mazo_carta WHERE mazo_id = :idMazo";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['idMazo' => $idMazo]);
-        $cartas = $stmt->fetchAll(PDO::FETCH_COLUMN);
-
-        return ResponseUtil::crearRespuesta($res, [
-            "partida_id" => $partidaId,
-            "cartas" => $cartas
-        ], 200);
+            return ResponseUtil::crearRespuesta($res, [
+                "partida_id" => $partidaId,
+                "cartas" => $cartas
+            ], 200);
+        } catch (\PDOException $e) {
+            return ResponseUtil::crearRespuesta($res, ["error" => "Error al crear la partida: " . $e->getMessage()], 500);
+        }
     }
+
+    public function obtenerEstadisticas($req, $res, $args) 
+    {
+        try {
+            $estadisticas = $this->partidaModel->obtenerEstadisticas();
+
+            if (!$estadisticas) {
+                return ResponseUtil::crearRespuesta($res, ["error" => "No se pudieron obtener las estadísticas"], 400);
+            }
+
+            // Responder con las estadísticas
+            return ResponseUtil::crearRespuesta($res, [
+                "estadisticas" => $estadisticas
+            ]);
+        } catch (\PDOException $e) {
+            return ResponseUtil::crearRespuesta($res, ['error' => "Error al obtener estadísticas: " . $e->getMessage()], 500);
+        }
+    }
+
 }
-?>

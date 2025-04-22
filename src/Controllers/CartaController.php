@@ -1,36 +1,38 @@
 <?php
 namespace App\Controllers;
 
-use App\Controllers\ResponseUtil;
-use App\Controllers\DataBase;
+use App\Models\CartaModel;
+use App\Utils\ResponseUtil;
+use Psr\Http\Message\RequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 
-class CartaController{
-    private $pdo;
+class CartaController {
+    private $cartaModel;
 
-    public function __construct(){
-        $this->pdo = DataBase::getInstance();
+    public function __construct() {
+        $this->cartaModel = new CartaModel();
     }
 
-    public function listarCartas($req,$res,$args){
-        $atributo_id = $args['atributo'];
-        $nombre = $args['nombre'];
+    public function listarCartas(Request $req, Response $res, array $args): Response {
+        $params = $req->getQueryParams(); // Obtener los parámetros de la query string
+        $atributo_id = $params['atributo'] ?? null;
+        $nombre = $params['nombre'] ?? null;
 
-        try{
-            $sql = "SELECT id,nombre,ataque,ataque_nombre FROM carta WHERE atributo_id = :atributo_id AND nombre = LIKE %:nombre%"; //verificar si era asi.
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([
-                'atributo_id' => $atributo_id,
-                'nombre' => $nombre
-            ]);
-            $cartas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            if($cartas){
-                return ResponseUtil::crearRespuesta($res,['mensaje' => 'No existen cartas con esos argumentos.']);
+        if (!$atributo_id || !$nombre) {
+            return ResponseUtil::crearRespuesta($res, ["error" => "Faltan parámetros: atributo y nombre son requeridos."], 400);
+        }
+
+        try {
+            $cartas = $this->cartaModel->obtenerCartasPorAtributoYNombre($atributo_id, $nombre);
+
+            if (empty($cartas)) {
+                return ResponseUtil::crearRespuesta($res, ['mensaje' => 'No existen cartas con esos argumentos.']);
             }
-            return ResponseUtil::crearRespuesta($res,$cartas);
 
-        }catch(\PDOException $e) {
-            return ResponseUtil::crearRespuesta($res, ['error' => "Error al procesar la solicitud: " . $e->getMessage()], 500);
+            return ResponseUtil::crearRespuesta($res, $cartas);
 
+        } catch (\Exception $e) {
+            return ResponseUtil::crearRespuesta($res, ['error' => $e->getMessage()], 500);
         }
     }
 }
