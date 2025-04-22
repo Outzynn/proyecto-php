@@ -9,6 +9,8 @@ use App\Controllers\LoginController;
 use App\Controllers\MazosController;
 use App\Controllers\UsuarioController;
 use App\Controllers\PartidaController;
+use App\Controllers\CartaController;
+use App\Controllers\EstadisticasController;
 
 use App\Middleware\AuthMiddleware;
 
@@ -34,9 +36,15 @@ $app->group('/usuarios/{usuario}', function ($route) {              //Esto basic
 $app->post('/partidas', [new PartidaController(), 'crearPartida'])->add(new AuthMiddleware());
 
 $app->post('/mazos', [new MazosController(), 'crearMazo'])->add(new AuthMiddleware());
-$app->delete('/mazos/{mazo}', [new MazosController(), 'borrarMazo'])->add(new AuthMiddleware());
+
+$app->delete('/mazos/{mazo}', [new MazosController(), 'borrarMazo'])->add(new AuthMiddleware()); //crear GROUP  
+//$app->put('/mazos/{mazo}', [new MazosController(), 'actualizarMazo'])->add(new AuthMiddleware());
 
 $app->get('/usuarios/{usuario}/mazos', [new MazosController(),'listadoMazos'])->add(new AuthMiddleware());
+
+$app->get('/cartas?atributo={atributo}&nombre={nombre}', [new CartaController(), 'listarCartas']); //TESTEAR
+
+//$app->get('/estadisticas', [new EstadisticasController(), 'cantidadPartidas']); //IMPLEMENTAR
 
 $app->run();
 ?>
