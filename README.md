@@ -47,9 +47,10 @@ Instalación (Pasos Generales):
 **Autenticación:**
 POST /registro
 POST /login
+Se deben pasar por el BODY de JSON el nombre,usuario y password.
 
 **Usuarios (Requiere Token JWT en la cabecera `Authorization`):**
-PUT /usuarios/{usuario}: Editar al usuario logueado (solo nombre y password).
+PUT /usuarios/{usuario}: Editar al usuario logueado (solo nombre y password). Requiere en el BODY nombre y password para actualizarlas.
 GET /usuarios/{usuario}: Obtener información del usuario logueado.
 
 **Juego (Requiere Token JWT en la cabecera `Authorization`. Valida que el mazo pertenece al usuario autenticado por el token):**
@@ -59,9 +60,9 @@ GET /usuarios/{usuario}/partidas/{partida}/cartas (opcional)
 
 **Mazos (Requiere Token JWT en la cabecera `Authorization`):**
 POST /mazos (recibe ids de cartas y nombre en el cuerpo)
-DELETE /mazos/{mazo}
-GET /usuarios/{usuario}/mazos
-PUT /mazos/{mazo} (recibe nombre en el cuerpo)
+DELETE /mazos/{mazo} (se le debe pasar el ID del mazo en el argumento)
+GET /usuarios/{usuario}/mazos (se le debe pasar el ID del usuario en el argumento)
+PUT /mazos/{mazo} (recibe nombre en el cuerpo) (se le debe pasar el ID del mazo en el argumento)
 
 **Cartas:**
 GET /cartas?atributo={atributo}&nombre={nombre}
@@ -77,4 +78,4 @@ Notas Adicionales:
 * Asegúrate de que el directorio `vendor` no esté expuesto directamente por tu servidor web.
 
 Contacto:
-Alfonso Marian, San Pedro Agustin.
+Alfonso Marianela, San Pedro Agustin.
