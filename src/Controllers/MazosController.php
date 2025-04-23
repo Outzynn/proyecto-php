@@ -19,20 +19,10 @@ class MazosController{
         $nombre = $data['nombre'];
         $usuario = $req->getAttribute('usuarioId');
 
-        if (!$ids || !is_array($ids)) {
-            return ResponseUtil::crearRespuesta($res, ['error' => 'Se debe proporcionar un array de IDs de cartas.'], 400);
-        }
+        $error = $this->validarDatos($ids, $nombre, $usuario);
 
-        if (empty($nombre)) {
-            return ResponseUtil::crearRespuesta($res, ['error' => 'El nombre del mazo es obligatorio.'], 400);
-        }        
-
-        if (!$this->mazoModel->cartasValidas($ids)) {
-            return ResponseUtil::crearRespuesta($res, ['error' => 'Máximo 5 cartas distintas y todas deben existir'], 400);
-        }
-
-        if ($this->mazoModel->contarMazosDeUsuario($usuario) >= 3) {
-            return ResponseUtil::crearRespuesta($res, ['error' => 'Máximo de mazos alcanzado'], 400);
+        if ($error) {
+            return ResponseUtil::crearRespuesta($res, ['error' => $error], 400);
         }
 
         try {
@@ -44,6 +34,28 @@ class MazosController{
             return ResponseUtil::crearRespuesta($res, ['error' => $e->getMessage()], 500);
         }
     }
+
+    private function validarDatos($ids, $nombre, $usuario)
+    {
+        if (!$ids || !is_array($ids)) {
+            return 'Se debe proporcionar un array de IDs de cartas. Llamado ids.';
+        }
+
+        if (empty($nombre)) {
+            return 'El nombre del mazo es obligatorio.';
+        }
+
+        if (!$this->mazoModel->cartasValidas($ids)) {
+            return 'Máximo 5 cartas distintas y todas deben existir';
+        }
+
+        if ($this->mazoModel->contarMazosDeUsuario($usuario) >= 3) {
+            return 'Máximo de mazos alcanzado';
+        }
+
+        return null;
+    }
+
 
     public function borrarMazo($req, $res, $args)
     {
