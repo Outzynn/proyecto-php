@@ -1,0 +1,4 @@
+Debido al uso de la libreria JWT para generacion de tokens de acceso, hemos modificado la base de datos para su correcto funcionamiento.
+Se debe modificar la longitud de almacenamiento de la columna TOKEN de la tabla USUARIO a varchar(300) por ejemplo. Esto fue previamente charlado con los ayudantes y jefe de trabajos practicos.
+
+Ademas, para probar este proyecto, se deberia cambiar en src/Utils/DataBase.php el contenido de la variable "$dbname" por el nombre de la base de datos correspondiente.

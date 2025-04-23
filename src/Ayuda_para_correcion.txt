@@ -1,0 +1,29 @@
+Esto es una ayuda para probar los servicios con POSTMAN, 
+falicitara el testeo.
+
+POST /registro : este servicio requiere que le pasen por body "nombre","usuario" y "password".
+
+POST /login : este servicio requiere que le pasen por body "nombre","usuario" y "password". 
+Va a devolver el token JWT para usar en los proximos servicios(*).
+
+GET /cartas : requiere pasarle por parametros los datos atributo y nombre: ejemplo /cartas?atributo={atributo}&nombre={nombre}
+
+GET /estadisticas : no necesita nada
+
+//(*)Los proximos servicios requieren pasar el token por "Headers" con la key "Authorization" y Value: Bearer *TOKEN* 
+
+PUT /usuarios/{usuario} : Esto necesita pasarle por argumentos el usuario (usuario, no id de usuario). Ademas necesita "nombre" y "password" que seran las nuevas credenciales del usuario.
+GET /usuarios/{usuario} : Esto necesita pasarle por argumentos el usuario (usuario, no id de usuario).
+
+POST /partidas : Esto necesita pasarle por body el int "idDelMazo".
+
+POST /mazos : Esto necesita un array con las cartas llamado "ids" y un "nombre".
+
+DELETE /mazos/{mazo} : Esto necesita el id del mazo pasado por argumento.
+
+PUT /mazos/{mazo} : Necesita id del mazo por argumentos y "nombre" por Body.
+
+GET /usuarios/{usuario}/mazos : Necesita id del usuario por argumento.
+
+
+
