@@ -79,8 +79,7 @@ class MazosController{
     {
         $usuario = $args['usuario'];
         $usuario_auth = $req->getAttribute('usuarioId');
-        echo $usuario;
-        echo $usuario_auth;
+
         if ($usuario_auth != $usuario) {
             return ResponseUtil::crearRespuesta($res, ["error" => "No tienes permiso para ver los mazos de este usuario. Verificar que este proporcionando el ID del usuario."], 401);
         }
@@ -107,7 +106,7 @@ class MazosController{
         $nombre = $data['nombre'];
 
         if(empty($nombre)){
-            return ResponseUtil::crearRespuesta($res,["error" => "El nombre del mazo es requirido"],400);
+            return ResponseUtil::crearRespuesta($res,["error" => "El nombre del mazo es requerido"],400);
         }
  
         if (!$this->mazoModel->mazoPerteneceAUsuario($mazo_id, $usuario_auth)) {
@@ -115,8 +114,8 @@ class MazosController{
         }
 
         try{
-            $actulizo = $this->mazoModel->actualizarNombreMazo($mazo_id,$nombre);
-            if(!$actulizo){
+            $actualizo = $this->mazoModel->actualizarNombreMazo($mazo_id,$nombre);
+            if(!$actualizo){
                 return ResponseUtil::crearRespuesta($res,["error" => "No se pudo actualizar el mazo"],400);
             }
             return ResponseUtil::crearRespuesta($res,["mensaje" => "Mazo actualizado con exito"]);
