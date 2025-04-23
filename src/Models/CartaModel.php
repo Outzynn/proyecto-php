@@ -13,7 +13,6 @@ class CartaModel {
 
     public function obtenerCartasPorAtributoYNombre($atributo_id, $nombre) {
         try {
-            // Consulta con JOIN para obtener el nombre del atributo también
             $sql = "SELECT c.id, c.nombre, c.ataque, c.ataque_nombre, a.nombre AS atributo_nombre
                     FROM carta c
                     INNER JOIN atributo a ON c.atributo_id = a.id
@@ -24,7 +23,6 @@ class CartaModel {
                 'nombre' => "%" . $nombre . "%"
             ]);
             
-            // Recuperar los resultados
             $cartas = $stmt->fetchAll(PDO::FETCH_ASSOC);
             
             // Verificar si se encontraron cartas
@@ -32,7 +30,6 @@ class CartaModel {
                 return []; // Si no se encuentran cartas, devolver un array vacío
             }
 
-            // Agregar el atributo_nombre a la respuesta junto con las cartas
             return $cartas;
 
         } catch (\PDOException $e) {

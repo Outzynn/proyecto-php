@@ -22,7 +22,7 @@ class Database {
     }
 
     public static function getInstance() { //static para poder llamarla sin crear una instancia, esta funcion verifica si he creado anteriormente una instancia de conexion, sino la crea y la devuelve. 
-    // Esto es para no tener 20 conecciones a la DB distintas.
+    // Esto es para no tener 20 conexiones a la DB distintas.
         if (self::$instance === null) {
             self::$instance = new Database(); 
         }
