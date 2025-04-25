@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 use App\Utils\Database;
+use PDO;
 
 class JugadaModel{
     private $pdo;
@@ -16,7 +17,7 @@ class JugadaModel{
             ':id' => $partida_id
         ]);
         
-        $mazo_id = (int)$stmt->fetchColumn();
+        $mazo_id = $stmt->fetchColumn();
 
         $sql = "SELECT usuario_id FROM mazo WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
@@ -24,13 +25,9 @@ class JugadaModel{
             ':id' => $mazo_id
         ]);
 
-        $usuario_del_mazo = (int)$stmt->fetchColumn();
+        $usuario_del_mazo = $stmt->fetchColumn();
 
-        if($usuario_id === $usuario_del_mazo){
-            return true;
-        }
-
-        return false;
+        return ((int)$usuario_id === (int)$usuario_del_mazo);
     }
 
     public function cartaValida($carta_id, $partida_id){
@@ -42,18 +39,15 @@ class JugadaModel{
         
         $mazo_id = (int)$stmt->fetchColumn();
 
-        $sql = "SELECT COUNT(*) FROM mazo_carta WHERE carta_id = :carta_id AND estado = :estado";
+        $sql = "SELECT COUNT(*) FROM mazo_carta WHERE carta_id = :carta_id AND estado = :estado AND mazo_id = :mazo_id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             ':carta_id' => $carta_id,
-            ':estado' => "en_mazo"
+            ':estado' => "en_mano",
+            ':mazo_id' => $mazo_id
         ]);
-        $valida = (int)$stmt->fetchColumn();
-
-        if($valida === 1){
-            return true;
-        }
-        return false;
+        $valida = $stmt->fetchColumn();
+        return ((int)$valida === 1);
     }
 
     public function jugar($partida_id, $carta_id)
@@ -64,6 +58,7 @@ class JugadaModel{
             "resultado" => null
         ];
         $carta_servidor = $this->jugadaServidor();
+
         $resultado = $this->gana($carta_id,$carta_servidor); //devuelve un string de "gano,perdio o empato".
 
         $mazo_id = $this->buscarMazo($partida_id);
@@ -267,7 +262,7 @@ class JugadaModel{
             return null; //Devuelve null si no encontro cartas disponibles.
         }
 
-        $sql = "UPDATE mazo_carta SET estado = 'descartado' WHERE carta_id = :id "; //Udatea el estado de la carta jugada a "descartado".
+        $sql = "UPDATE mazo_carta SET estado = 'descartado' WHERE carta_id = :id AND mazo_id = 1 "; //Udatea el estado de la carta jugada a "descartado".
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':id' => $id]);
 

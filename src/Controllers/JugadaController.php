@@ -16,7 +16,7 @@ class JugadaController{
         $data = $req->getParsedBody();
         $carta_id = $data['carta_id'];
         $partida_id = $data['partida_id'];
-        $id_auth = $req->getAttribute('UsuarioId');
+        $id_auth = $req->getAttribute('usuarioId');
 
         if(!$carta_id || !$partida_id){
             return ResponseUtil::crearRespuesta($res,["error" => "Carta o partida no enviadas."]);

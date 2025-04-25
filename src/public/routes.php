@@ -8,6 +8,8 @@ use App\Controllers\UsuarioController;
 use App\Controllers\PartidaController;
 use App\Controllers\CartaController;
 use App\Controllers\EstadisticasController;
+use App\Controllers\JugadaController;
+
 use App\Middleware\AuthMiddleware;
 
 return function ($app) {
@@ -37,4 +39,5 @@ return function ($app) {
 
     $app->get('/estadisticas', [new PartidaController(),'obtenerEstadisticas']);
 
+    $app->post('/jugadas', [new JugadaController(),'jugar'])->add(new AuthMiddleware());
 };
