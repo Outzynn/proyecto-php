@@ -35,6 +35,6 @@ return function ($app) {
 
     $app->get('/cartas', [new CartaController(), 'listarCartas']);
 
-    $app->get('/estadisticas', [new PartidaController(),'obtenerEstadisticas']);asdasd
+    $app->get('/estadisticas', [new PartidaController(),'obtenerEstadisticas']);
 
 };
