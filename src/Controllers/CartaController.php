@@ -18,10 +18,6 @@ class CartaController {
         $atributo_id = $params['atributo'] ?? null;
         $nombre = $params['nombre'] ?? null;
 
-        if (!$atributo_id || !$nombre) {
-            return ResponseUtil::crearRespuesta($res, ["error" => "Faltan parámetros: atributo y nombre son requeridos."], 400);
-        }
-
         try {
             $cartas = $this->cartaModel->obtenerCartasPorAtributoYNombre($atributo_id, $nombre);
 
