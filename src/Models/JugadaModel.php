@@ -63,28 +63,28 @@ class JugadaModel{
             "esUltima" => false,
             "resultado" => null
         ];
-        $carta_servidor = jugadaServidor();
-        $resultado = gana($carta_id,$carta_servidor); //devuelve un string de "gano,perdio o empato".
+        $carta_servidor = $this->jugadaServidor();
+        $resultado = $this->gana($carta_id,$carta_servidor); //devuelve un string de "gano,perdio o empato".
 
-        $mazo_id = buscarMazo($partida_id);
-        actualizarCarta($mazo_id,$carta_id,"descartado");
+        $mazo_id = $this->buscarMazo($partida_id);
+        $this->actualizarCarta($mazo_id,$carta_id,"descartado");
 
-        crearJugada($partida_id,$carta_servidor,$carta_id,$resultado);
+        $this->crearJugada($partida_id,$carta_servidor,$carta_id,$resultado);
 
         $datos["carta_servidor"] = $carta_servidor;
 
-        if(esUltima($partida_id)){
-            actualizarPartida($partida_id); //pone finalizado
+        if($this->esUltima($partida_id)){
+            $this->actualizarPartida($partida_id); //pone finalizado
 
             $datos["esUltima"] = true;
-            $datos["resultado"] = resultadoPartida($partida_id);
+            $datos["resultado"] = $this->resultadoPartida($partida_id);
 
         }
         
         return $datos;
     }
 
-    public function resultadoPartida($partida_id){
+    private function resultadoPartida($partida_id){
         $sql = "SELECT el_usuario FROM partida WHERE id = :partida_id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute(
@@ -93,7 +93,7 @@ class JugadaModel{
         return $stmt->fetchColumn();
     }
 
-    public function actualizarPartida($partida_id){
+    private function actualizarPartida($partida_id){
 
         $sql = "SELECT COUNT(*) FROM jugada WHERE partida_id = :partida_id AND el_usuario = :estado";
         $stmt = $this->pdo->prepare($sql);
@@ -136,7 +136,7 @@ class JugadaModel{
 
     }
 
-    public function esUltima($partida_id)
+    private function esUltima($partida_id)
     {
         $sql = "SELECT COUNT(*) FROM jugada WHERE partida_id = :partida_id";
         $stmt = $this->pdo->prepare($sql);
@@ -149,7 +149,7 @@ class JugadaModel{
         }
         return false;
     }
-    public function crearJugada($partida_id,$carta_servidor,$carta_id,$resultado)
+    private function crearJugada($partida_id,$carta_servidor,$carta_id,$resultado)
     {
         $sql = "INSERT INTO jugada (partida_id,carta_id_a,carta_id_b,el_usuario) 
         VALUES (:partida_id,:carta_servidor,:carta_id,:resultado)";
@@ -162,7 +162,7 @@ class JugadaModel{
         ]);
     }
 
-    public function actualizarCarta($mazo_id,$carta_id,$estado)
+    private function actualizarCarta($mazo_id,$carta_id,$estado)
     {
         $sql = "UPDATE mazo_carta SET estado = :estado WHERE carta_id  = :carta_id AND mazo_id = :mazo_id";
         $stmt = $this->pdo->prepare($sql);
@@ -173,7 +173,7 @@ class JugadaModel{
         ]);
     }
 
-    public function buscarMazo($partida_id)
+    private function buscarMazo($partida_id)
     {
         $sql = "SELECT mazo_id FROM partida WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
@@ -185,7 +185,7 @@ class JugadaModel{
 
 
 
-    public function gana($carta_user,$carta_servidor)
+    private function gana($carta_user,$carta_servidor)
     {
         $sql = "SELECT ataque,atributo_id FROM carta WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
@@ -256,7 +256,7 @@ class JugadaModel{
 
     }
 
-    public function jugadaServidor(): ?int { //  ?int hace que puedas devolver un null o un entero. Esta funcion necesita recibir la conexion (PDO) por parametro.
+    private function jugadaServidor(): ?int { //  ?int hace que puedas devolver un null o un entero. Esta funcion necesita recibir la conexion (PDO) por parametro.
 
         $sql = "SELECT carta_id FROM mazo_carta WHERE mazo_id = 1 AND estado = 'en_mazo' ORDER BY RAND() LIMIT 1"; //Selecciona una carta de las disponibles, ORDER BY RAND() ordena aleatoriamente las cartas y LIMIT 1 te trae 1 sola. Esto es para traer una carta random de las disponibles.
         $stmt = $this->pdo->prepare($sql);
