@@ -139,7 +139,7 @@ class JugadaModel{
         return false;
     }
 
-    public function resultadoUsuario($partida_id)
+    public function resultadoUsuario($partida_id)  //esto se podria mejorar para que el model no incluya logica y que de eso se encargue el controller.
     {
         $sql = "SELECT COUNT(*) FROM jugada WHERE partida_id = :partida_id AND el_usuario = :estado";
         $stmt = $this->pdo->prepare($sql);
