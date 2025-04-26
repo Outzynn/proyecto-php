@@ -13,8 +13,6 @@ use App\Controllers\JugadaController;
 use App\Middleware\AuthMiddleware;
 
 return function ($app) {
-    $app->get('/', HomeController::Class . ':index'); // Esto es solamente de prueba, para tener un index.
-
     $app->post('/registro', [new RegisterController(), 'registrarUsuario']);
 
     $app->post('/login', [new LoginController(), 'logearUsuario']);

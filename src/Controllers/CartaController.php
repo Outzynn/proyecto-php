@@ -13,7 +13,11 @@ class CartaController {
         $this->cartaModel = new CartaModel();
     }
 
-    public function listarCartas(Request $req, Response $res, array $args): Response {
+    public function listarCartas(Request $req, Response $res, array $args): Response {  
+        //mejorar para que no sea necesario pasar atributo y nombre, si no pasa nada lista todas las cartas,
+        //si pasa solo atributo lista las cartas con ese atributo y si solo pasa nombre lista las cartas con ese nombre 
+        // o que contengan esos caracteres. si pasan ambos, que traiga una resta entre ambos.
+
         $params = $req->getQueryParams(); // Obtener los parámetros de la query string
         $atributo_id = $params['atributo'] ?? null;
         $nombre = $params['nombre'] ?? null;
