@@ -26,7 +26,8 @@ class PartidaController {
 
         try {
             $partidaId = $this->partidaModel->crearPartida($usuarioId, $idMazo);
-            $this->partidaModel->ponerCartasEnMano($idMazo);
+            $this->partidaModel->ponerCartasEnMano($idMazo); //pone las cartas del jugador en mano
+            $this->partidaModel->ponerCartasEnMano(MAZO_SERVIDOR); //pone las cartas del servidor en mano
             $cartas = $this->partidaModel->obtenerCartasDelMazo($idMazo);
 
             return ResponseUtil::crearRespuesta($res, [

@@ -5,6 +5,8 @@ date_default_timezone_set('America/Argentina/Buenos_Aires'); // Setea la zona ho
 
 require __DIR__ . '/../../vendor/autoload.php';
 
+define('MAZO_SERVIDOR', 1);
+
 $app = AppFactory::create();
 
 $app->addBodyParsingMiddleware();
