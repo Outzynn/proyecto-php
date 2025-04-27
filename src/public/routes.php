@@ -6,7 +6,6 @@ use App\Controllers\MazosController;
 use App\Controllers\UsuarioController;
 use App\Controllers\PartidaController;
 use App\Controllers\CartaController;
-use App\Controllers\EstadisticasController;
 use App\Controllers\JugadaController;
 
 use App\Middleware\AuthMiddleware;
