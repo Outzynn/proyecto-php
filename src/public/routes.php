@@ -1,6 +1,5 @@
 <?php
 
-use App\Controllers\HomeController;
 use App\Controllers\RegisterController;
 use App\Controllers\LoginController;
 use App\Controllers\MazosController;
@@ -18,8 +17,8 @@ return function ($app) {
     $app->post('/login', [new LoginController(), 'logearUsuario']);
 
     $app->group('/usuarios/{usuario}', function ($route) { 
-        $route->put('', [UsuarioController::class, 'editarUsuario']);
-        $route->get('', [UsuarioController::class, 'obtenerUsuario']);
+        $route->put('', [new UsuarioController(), 'editarUsuario']);
+        $route->get('', [new UsuarioController(), 'obtenerUsuario']);
     })->add(new AuthMiddleware()); 
 
     $app->post('/partidas', [new PartidaController(), 'crearPartida'])->add(new AuthMiddleware());
