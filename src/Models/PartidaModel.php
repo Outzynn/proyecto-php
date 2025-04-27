@@ -20,6 +20,16 @@ class PartidaModel {
         return (int)$idEncontrado === $usuarioId;
     }
 
+    public function mazoEnUso($id_mazo)
+    {
+        $sql = "SELECT COUNT(*) FROM partida WHERE mazo_id = :mazo_id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'mazo_id' => $id_mazo
+        ]);
+        return (int)$stmt->fetchColumn() > 0;
+    }
+
     public function crearPartida(int $usuarioId, int $mazoId): int {
         $sql = "INSERT INTO partida (usuario_id, fecha, mazo_id, estado) VALUES (:usuarioId, NOW(), :mazoId, :estado)";
         $stmt = $this->pdo->prepare($sql);

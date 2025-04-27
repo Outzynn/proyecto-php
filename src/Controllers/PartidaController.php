@@ -20,11 +20,15 @@ class PartidaController {
             return ResponseUtil::crearRespuesta($res, ["error" => "Falta el ID del mazo"], 400);
         }
 
-        if (!$this->partidaModel->mazoPerteneceAlUsuario($idMazo, $usuarioId)) {
-            return ResponseUtil::crearRespuesta($res, ["error" => "El mazo no pertenece al usuario logeado."], 401);
-        }
-
         try {
+            if (!$this->partidaModel->mazoPerteneceAlUsuario($idMazo, $usuarioId)) {
+                return ResponseUtil::crearRespuesta($res, ["error" => "El mazo no pertenece al usuario logeado."], 401);
+            }
+
+            if($this->partidaModel->mazoEnUso($idMazo)){
+                return ResponseUtil::crearRespuesta($res, ["error" => "El mazo ya esta en uso."], 400);
+            }
+
             $partidaId = $this->partidaModel->crearPartida($usuarioId, $idMazo);
             $this->partidaModel->ponerCartasEnMano($idMazo); //pone las cartas del jugador en mano
             $this->partidaModel->ponerCartasEnMano(MAZO_SERVIDOR); //pone las cartas del servidor en mano
