@@ -116,4 +116,43 @@ class JugadaController{
             return "empataron";
         }
     }
+
+public function obtenerCartasEnMano($req,$res,$args)
+    {
+        $usuario_id = $args['usuario'];
+        $partida_id = $args['partida'];
+        $usuario_auth = $req->getAttribute('usuarioId');
+
+        if( !is_numeric($usuario_id) || !is_numeric($partida_id)){
+            return ResponseUtil::crearRespuesta($res,["error" => "Usuario o partida no proporcionados o formato invalido."]);
+        }
+        if($usuario_id != $usuario_auth){
+            return ResponseUtil::crearRespuesta($res,["error" => "No tienes permisos para obtener las cartas de este usuario."],401);
+        }
+
+        try{
+            if(!$this->jugadaModel->partidaValida($partida_id)){
+                return ResponseUtil::crearRespuesta($res,["error" => "La partida no es valida."],400);
+            }
+            
+            $mazo_id = $this->jugadaModel->buscarMazo($partida_id);
+            if(!$mazo_id){
+                return ResponseUtil::crearRespuesta($res,["error" => "Mazo de la partida no encontrado."],400);
+            }
+
+            $cartas_en_mano = $this->jugadaModel->obtenerCartasEnMano($mazo_id);
+            if(!$cartas_en_mano){
+                return ResponseUtil::crearRespuesta($res,["error" => "No hay cartas en mano."],400);
+            }
+
+            $data = [
+                'mensaje' => 'Estas son las cartas en mano del usuario:',
+                'cartas' => $cartas_en_mano
+            ];
+            return ResponseUtil::crearRespuesta($res,$data,200);
+
+        }catch (\Exception $e) {
+            return ResponseUtil::crearRespuesta($res, ['error' => $e->getMessage()], 500);
+        }
+    }
 }

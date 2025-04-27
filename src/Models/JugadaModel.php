@@ -191,4 +191,19 @@ class JugadaModel{
         ]);
     }
 
+    public function obtenerCartasEnMano($mazo_id)
+    {
+        $sql = "SELECT c.id, c.nombre, c.ataque, c.ataque_nombre, a.nombre AS atributo
+        FROM carta c
+        JOIN mazo_carta mc ON c.id = mc.carta_id
+        JOIN atributo a ON c.atributo_id = a.id
+        WHERE mc.mazo_id = :mazo_id
+          AND mc.estado = 'en_mano'";
+    
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([':mazo_id' => $mazo_id]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }

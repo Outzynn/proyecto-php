@@ -18,6 +18,7 @@ return function ($app) {
     $app->group('/usuarios/{usuario}', function ($route) { 
         $route->put('', [new UsuarioController(), 'editarUsuario']);
         $route->get('', [new UsuarioController(), 'obtenerUsuario']);
+        $route->get('/partida/{partida}/cartas', [new JugadaController(), 'obtenerCartasEnMano']);
     })->add(new AuthMiddleware()); 
 
     $app->post('/partidas', [new PartidaController(), 'crearPartida'])->add(new AuthMiddleware());
