@@ -14,7 +14,7 @@ class PartidaModel {
     public function mazoPerteneceAlUsuario(int $mazoId, int $usuarioId): bool {
         $sql = "SELECT usuario_id FROM mazo WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['id' => $mazoId]);
+        $stmt->execute([':id' => $mazoId]);
         $idEncontrado = $stmt->fetchColumn();
 
         return (int)$idEncontrado === $usuarioId;
@@ -24,9 +24,9 @@ class PartidaModel {
         $sql = "INSERT INTO partida (usuario_id, fecha, mazo_id, estado) VALUES (:usuarioId, NOW(), :mazoId, :estado)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            'usuarioId' => $usuarioId,
-            'mazoId' => $mazoId,
-            'estado' => "en_curso"
+            ':usuarioId' => $usuarioId,
+            ':mazoId' => $mazoId,
+            ':estado' => "en_curso"
         ]);
         return $this->pdo->lastInsertId();
     }
@@ -34,13 +34,13 @@ class PartidaModel {
     public function ponerCartasEnMano(int $mazoId): void {
         $sql = "UPDATE mazo_carta SET estado = 'en_mano' WHERE mazo_id = :idMazo";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['idMazo' => $mazoId]);
+        $stmt->execute([':idMazo' => $mazoId]);
     }
 
     public function obtenerCartasDelMazo(int $mazoId): array {
         $sql = "SELECT carta_id FROM mazo_carta WHERE mazo_id = :idMazo";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['idMazo' => $mazoId]);
+        $stmt->execute([':idMazo' => $mazoId]);
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
