@@ -17,20 +17,29 @@ class JugadaController{
         $carta_id = $data['carta_id'];
         $partida_id = $data['partida_id'];
         $id_auth = $req->getAttribute('usuarioId');
-
+        $mazo_server = 1;
         if(!is_numeric($carta_id) || !is_numeric($partida_id)){
             return ResponseUtil::crearRespuesta($res,["error" => "Carta o partida no validas."]);
         }
 
         try{
-            if(!$this->jugadaModel->validarPermisos($partida_id,$id_auth)){
+            if(!$this->jugadaModel->partidaValida($partida_id)){
+                return ResponseUtil::crearRespuesta($res,["error" => "Partida no valida, o ya finalizo."],400);
+            }
+
+            $mazo_id = $this->jugadaModel->buscarMazo($partida_id);
+            if(!$mazo_id){
+                return ResponseUtil::crearRespuesta($res,["error" => "Mazo de la partida no encontrado."],400);
+            }
+
+            if(!$this->jugadaModel->validarPermisos($mazo_id,$id_auth)){
                 return ResponseUtil::crearRespuesta($res,["error" => "Permisos no validos."],401);
             }
-            if(!$this->jugadaModel->cartaValida($carta_id,$partida_id)){
+            if(!$this->jugadaModel->cartaValida($carta_id,$mazo_id)){
                 return ResponseUtil::crearRespuesta($res,["error"=> "Carta no valida."],400);
             }
 
-            $carta_id_servidor = $this->jugadaModel->jugadaServidor();
+            $carta_id_servidor = $this->jugadaModel->jugadaServidor($mazo_server);
             if($carta_id_servidor == null){
                 return ResponseUtil::crearRespuesta($res,["error" => "Servidor ya no tiene cartas en mazo."], 400);
             }
@@ -61,20 +70,25 @@ class JugadaController{
 
             $respuesta = [
                 'carta_jugada_por_servidor' => $carta_servidor,
+                'carta_jugada_por_el_jugador' => $carta_jugador,
                 'puntos_de_fuerza_carta_jugador' => $puntos_jugador,
-                'puntos_de_fuerza_carta_servidor' => $puntos_servidor
+                'puntos_de_fuerza_carta_servidor' => $puntos_servidor,
+                'el usuario' => $resultado
             ];
 
             if($this->jugadaModel->esUltima($partida_id)){
-                $resultado_usuario = $this->jugadaModel->resultadoUsuario($partida_id);
+                $this->jugadaModel->guardarCartasEnMazo($mazo_id);
+                $this->jugadaModel->guardarCartasEnMazo($mazo_server);
+                $resultado_usuario = $this->jugadaModel->resultadoPartida($partida_id);
                 $this->jugadaModel->actualizarPartida($partida_id,$resultado_usuario);
-
                 $respuesta['gano_el_juego'] = $this->quienGano($resultado_usuario);
             }
+
+            return ResponseUtil::crearRespuesta($res, $respuesta, 200);
+
         }catch (\PDOException $e) {
             return ResponseUtil::crearRespuesta($res, ["error" => "Error en la base de datos: " . $e->getMessage()], 500);
         }
-        return ResponseUtil::crearRespuesta($res, $respuesta, 200);
     }
 
     private function determinarResultado($puntos_jugador,$puntos_servidor)

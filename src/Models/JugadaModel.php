@@ -10,15 +10,18 @@ class JugadaModel{
         $this->pdo = DataBase::getInstance();
     }
 
-    public function validarPermisos($partida_id,$usuario_id){
-        $sql = "SELECT mazo_id FROM partida where id = :id";
+    public function partidaValida($id_partida)
+    {
+        $sql = "SELECT COUNT(*) FROM partida where id = :id AND estado = :estado";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            ':id' => $partida_id
+            ':id' => $id_partida,
+            ':estado' => "en_curso"
         ]);
-        
-        $mazo_id = $stmt->fetchColumn();
-
+        return (int)$stmt->fetchColumn() > 0;
+    }
+    public function validarPermisos($mazo_id,$usuario_id)
+    {
         $sql = "SELECT usuario_id FROM mazo WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
@@ -30,15 +33,8 @@ class JugadaModel{
         return ((int)$usuario_id === (int)$usuario_del_mazo);
     }
 
-    public function cartaValida($carta_id, $partida_id){
-        $sql = "SELECT mazo_id FROM partida where id = :id";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':id' => $partida_id
-        ]);
-        
-        $mazo_id = (int)$stmt->fetchColumn();
-
+    public function cartaValida($carta_id, $mazo_id)
+    {
         $sql = "SELECT COUNT(*) FROM mazo_carta WHERE carta_id = :carta_id AND estado = :estado AND mazo_id = :mazo_id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
@@ -50,11 +46,13 @@ class JugadaModel{
         return ((int)$valida === 1);
     }
 
-    public function jugadaServidor(): ?int {
+    public function jugadaServidor($mazo_id): ?int {
 
-        $sql = "SELECT carta_id FROM mazo_carta WHERE mazo_id = 1 AND estado = 'en_mazo' ORDER BY RAND() LIMIT 1";
+        $sql = "SELECT carta_id FROM mazo_carta WHERE mazo_id = :mazo_id AND estado = 'en_mano' ORDER BY RAND() LIMIT 1";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute();
+        $stmt->execute([
+            ':mazo_id' => $mazo_id
+        ]);
         $id= (int)$stmt->fetchColumn();
 
         if (!$id) {
@@ -83,8 +81,8 @@ class JugadaModel{
         $sql = "SELECT COUNT(*) FROM gana_a WHERE atributo_id = :atributo_1 AND atributo_id2 = :atributo_2";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            ':atributo_id' => $atributo_1,
-            ':atributo_id2' => $atributo_2,
+            ':atributo_1' => $atributo_1,
+            ':atributo_2' => $atributo_2,
         ]);
         return $stmt->fetchColumn() > 0;
     }
@@ -139,21 +137,32 @@ class JugadaModel{
         return false;
     }
 
-    public function resultadoUsuario($partida_id)  //esto se podria mejorar para que el model no incluya logica y que de eso se encargue el controller.
+    public function guardarCartasEnMazo($mazo_id)
+    {
+        $sql = "UPDATE mazo_carta SET estado = :estado WHERE mazo_id = :mazo_id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':estado' => "en_mazo",
+            ':mazo_id' => $mazo_id
+        ]);
+        return $stmt->rowCount() > 0;
+    }
+
+    public function resultadoPartida($partida_id)  //esto se podria mejorar para que el model no incluya logica y que de eso se encargue el controller.
     {
         $sql = "SELECT COUNT(*) FROM jugada WHERE partida_id = :partida_id AND el_usuario = :estado";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            'partida_id' => $partida_id,
-            'estado' => "gano"
+            ':partida_id' => $partida_id,
+            ':estado' => "gano"
         ]);
         $gano_cant = (int)$stmt->fetchColumn();
 
         $sql = "SELECT COUNT(*) FROM jugada WHERE partida_id = :partida_id AND el_usuario = :estado";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            'partida_id' => $partida_id,
-            'estado' => "perdio"
+            ':partida_id' => $partida_id,
+            ':estado' => "perdio"
         ]);
         $perdio_cant = (int)$stmt->fetchColumn();
 
@@ -177,7 +186,7 @@ class JugadaModel{
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             ':partida_id' => $partida_id,
-            ':estado' => "finalizado",
+            ':estado' => "finalizada",
             ':el_usuario' => $resultado
         ]);
     }
