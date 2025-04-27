@@ -58,12 +58,4 @@ class UsuarioModel {
         ]);
     }
     
-    public function validarPermisos($usuario, $id) {
-        $stmt = $this->pdo->prepare("SELECT usuario FROM usuario WHERE id = :id");
-        $stmt->execute([':id' => $id]);
-        $usuarioEncontrado = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-        return ($usuarioEncontrado && $usuarioEncontrado['usuario'] === $usuario);
-    }
-    
 }

@@ -22,7 +22,8 @@ class UsuarioController {
         $password = $data['password'] ?? null;
         $usuarioId = $request->getAttribute('usuarioId');
 
-        if (!$this->usuarioModel->validarPermisos($usuario, $usuarioId)) {
+        
+        if ($usuario != $usuarioId) {
             return ResponseUtil::crearRespuesta($res, ["error" => "No tienes permiso para editar este usuario"], 401);
         }
 
@@ -48,7 +49,7 @@ class UsuarioController {
         $usuario = $args['usuario'];
         $usuarioId = $request->getAttribute('usuarioId');
 
-        if (!$this->usuarioModel->validarPermisos($usuario, $usuarioId)) {
+        if ($usuario != $usuarioId){
             return ResponseUtil::crearRespuesta($res, ["error" => "No tienes permiso para ver la información de este usuario"], 401);
         }
 
