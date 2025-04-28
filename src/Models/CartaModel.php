@@ -8,32 +8,30 @@ class CartaModel {
     private $pdo;
 
     public function __construct() {
-        $this->pdo = DataBase::getInstance(); // Obtener la instancia de la conexión PDO
+        $this->pdo = DataBase::getInstance();
     }
 
-    public function obtenerCartasPorAtributoYNombre($atributo_id, $nombre) {
-        try {
-            $sql = "SELECT c.id, c.nombre, c.ataque, c.ataque_nombre, a.nombre AS atributo_nombre
-                    FROM carta c
-                    INNER JOIN atributo a ON c.atributo_id = a.id
-                    WHERE c.atributo_id = :atributo_id AND c.nombre LIKE :nombre";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([
-                'atributo_id' => $atributo_id,
-                'nombre' => "%" . $nombre . "%"
-            ]);
-            
-            $cartas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
-            // Verificar si se encontraron cartas
-            if (empty($cartas)) {
-                return []; // Si no se encuentran cartas, devolver un array vacío
-            }
-
-            return $cartas;
-
-        } catch (\PDOException $e) {
-            throw new \Exception("Error al procesar la solicitud: " . $e->getMessage());
+    public function buscarCartas(?string $atributo = null, ?string $nombre = null): array
+    {
+        $sql = "SELECT carta.id, carta.nombre, atributo.nombre AS atributo, carta.ataque 
+                FROM carta 
+                INNER JOIN atributo ON carta.atributo_id = atributo.id
+                WHERE 1=1";
+        $params = [];
+    
+        if ($atributo !== null) {
+            $sql .= " AND atributo.nombre = :atributo";
+            $params[':atributo'] = $atributo;
         }
+    
+        if ($nombre !== null) {
+            $sql .= " AND carta.nombre LIKE :nombre";
+            $params[':nombre'] = '%' . $nombre . '%';
+        }
+    
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+    
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

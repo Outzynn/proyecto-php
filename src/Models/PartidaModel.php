@@ -56,7 +56,6 @@ class PartidaModel {
     }
 
     public function obtenerEstadisticas() {
-        // Consulta SQL para obtener la cantidad de partidas ganadas, perdidas y empatadas
         $sql = "
             SELECT 
                 usuario_id,
@@ -66,11 +65,8 @@ class PartidaModel {
             FROM partida
             GROUP BY usuario_id
         ";
-
-        // Ejecutamos la consulta
         $stmt = $this->pdo->query($sql);
 
-        // Retornamos los resultados
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }
