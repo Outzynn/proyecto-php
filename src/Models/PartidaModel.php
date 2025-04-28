@@ -22,10 +22,11 @@ class PartidaModel {
 
     public function mazoEnUso($id_mazo)
     {
-        $sql = "SELECT COUNT(*) FROM partida WHERE mazo_id = :mazo_id";
+        $sql = "SELECT COUNT(*) FROM partida WHERE mazo_id = :mazo_id AND estado = :estado";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            'mazo_id' => $id_mazo
+            ':mazo_id' => $id_mazo,
+            ':estado' => "en_curso"
         ]);
         return (int)$stmt->fetchColumn() > 0;
     }
