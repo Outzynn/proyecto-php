@@ -25,7 +25,7 @@ class CartaModel {
         }
     
         if ($nombre !== null) {
-            $sql .= " AND carta.nombre LIKE :nombre";
+            $sql .= " AND carta.nombre LIKE :nombre";s
             $params[':nombre'] = '%' . $nombre . '%';
         }
     
