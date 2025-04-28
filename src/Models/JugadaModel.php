@@ -206,5 +206,14 @@ class JugadaModel{
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
+    public function pertenecePartida(int $user_id,  int $partida_id):bool
+    {
+        $sql = "SELECT COUNT(*) FROM partida WHERE id = :id AND usuario_id = :usuario_id";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':id' => $partida_id,
+            ':usuario_id' => $user_id
+        ]);
+        return $stmt->fetchColumn() > 0;
+    }
 }

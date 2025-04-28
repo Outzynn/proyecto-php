@@ -135,6 +135,11 @@ public function obtenerCartasEnMano(Request $req, Response $res, Array $args)
         }
 
         try{
+            //agregar verificacion de que la partida pertenezca al usuario
+            if(!$this->jugadaModel->pertenecePartida($usuario_auth,$partida_id)){
+                return ResponseUtil::crearRespuesta($res,["error" => "La partida no le pertenece al usuario."],401);
+            }
+        
             if(!$this->jugadaModel->partidaValida($partida_id)){
                 return ResponseUtil::crearRespuesta($res,["error" => "La partida no es valida."],400);
             }
