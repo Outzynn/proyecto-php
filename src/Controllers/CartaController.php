@@ -28,7 +28,7 @@ class CartaController {
             return ResponseUtil::crearRespuesta($res, $cartas);
 
         } catch (\Exception $e) {
-            return ResponseUtil::crearRespuesta($res, ['error' => $e->getMessage()], 500);s
+            return ResponseUtil::crearRespuesta($res, ['error' => $e->getMessage()], 500);
         }
     }
 }
