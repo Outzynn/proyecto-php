@@ -11,31 +11,33 @@ class MazoModel {
         $this->pdo = Database::getInstance();
     }
 
-    public function crearMazo($usuarioId, $nombre) {
+    public function crearMazo(int $usuarioId, string $nombre): int {
         $sql = "INSERT INTO mazo (usuario_id, nombre) VALUES (:usuario_id, :nombre)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             ':usuario_id' => $usuarioId,
             ':nombre' => $nombre
         ]);
-        return $this->pdo->lastInsertId();
+        return (int)$this->pdo->lastInsertId();
     }
 
-    public function insertarCartasEnMazo($mazoId, $ids) {
+    public function insertarCartasEnMazo(int $mazoId, array $ids): void {
         $values = array_map(fn($id) => "($mazoId, $id, 'en_mazo')", $ids);
         $sql = "INSERT INTO mazo_carta (mazo_id, carta_id, estado) VALUES " . implode(', ', $values);
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute();
     }
 
-    public function contarMazosDeUsuario($usuarioId) {
+    public function contarMazosDeUsuario(int $usuarioId): int {
         $sql = "SELECT COUNT(*) FROM mazo WHERE usuario_id = :usuario_id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':usuario_id' => $usuarioId]);
-        return $stmt->fetchColumn();
+        $result = $stmt->fetchColumn();
+
+        return ($result === false) ? 0 : (int)$result;
     }
 
-    public function cartasValidas($ids) {
+    public function cartasValidas(array $ids):bool {
         if (count($ids) > 5 || count($ids) !== count(array_unique($ids))) {
             return false;
         }
@@ -49,7 +51,7 @@ class MazoModel {
         return count($result) === count($ids);
     }
 
-    public function mazoPerteneceAUsuario($mazoId, $usuarioId) {
+    public function mazoPerteneceAUsuario(int $mazoId, int $usuarioId):bool {
         $sql = "SELECT COUNT(*) FROM mazo WHERE id = :mazo_id AND usuario_id = :usuario_id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
@@ -59,28 +61,28 @@ class MazoModel {
         return $stmt->fetchColumn() > 0;
     }
     
-    public function mazoEnUso($mazoId) {
+    public function mazoEnUso(int $mazoId): bool {
         $sql = "SELECT COUNT(*) FROM partida WHERE mazo_id = :mazo_id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':mazo_id' => $mazoId]);
         return $stmt->fetchColumn() > 0;
     }
     
-    public function eliminarMazo($mazoId) {
+    public function eliminarMazo(int $mazoId): bool {
         $sql = "DELETE FROM mazo WHERE id = :mazo_id";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':mazo_id' => $mazoId]);
         return $stmt->rowCount() > 0;
     }    
 
-    public function obtenerMazosPorUsuario($usuarioId) {
+    public function obtenerMazosPorUsuario(int $usuarioId): array {
         $sql = "SELECT id, nombre FROM mazo WHERE usuario_id = :usuarioId";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':usuarioId' => $usuarioId]);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
-    public function actualizarNombreMazo($mazo_id,$nombre){
+    public function actualizarNombreMazo(int $mazo_id, string $nombre): bool{
         $sql = "UPDATE mazo SET nombre = :nombre WHERE id = :mazo_id";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([

@@ -20,7 +20,7 @@ class PartidaModel {
         return (int)$idEncontrado === $usuarioId;
     }
 
-    public function mazoEnUso($id_mazo)
+    public function mazoEnUso(int $id_mazo): bool
     {
         $sql = "SELECT COUNT(*) FROM partida WHERE mazo_id = :mazo_id AND estado = :estado";
         $stmt = $this->pdo->prepare($sql);
@@ -39,7 +39,7 @@ class PartidaModel {
             ':mazoId' => $mazoId,
             ':estado' => "en_curso"
         ]);
-        return $this->pdo->lastInsertId();
+        return (int)$this->pdo->lastInsertId();
     }
 
     public function ponerCartasEnMano(int $mazoId): void {
@@ -55,7 +55,7 @@ class PartidaModel {
         return $stmt->fetchAll(PDO::FETCH_COLUMN);
     }
 
-    public function obtenerEstadisticas() {
+    public function obtenerEstadisticas(): array{
         $sql = "
             SELECT 
                 usuario_id,

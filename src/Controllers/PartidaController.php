@@ -1,6 +1,9 @@
 <?php
 namespace App\Controllers;
 
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+
 use App\Utils\ResponseUtil;
 use App\Models\PartidaModel;
 
@@ -11,7 +14,7 @@ class PartidaController {
         $this->partidaModel = new PartidaModel();
     }
 
-    public function crearPartida($req, $res) {
+    public function crearPartida(Request $req, Response $res) {
         $data = $req->getParsedBody();
         $idMazo = $data['idDelMazo'] ?? null;
         $usuarioId = $req->getAttribute("usuarioId");
@@ -43,7 +46,7 @@ class PartidaController {
         }
     }
 
-    public function obtenerEstadisticas($req, $res, $args) 
+    public function obtenerEstadisticas(Request $req, Response $res, Array $args) 
     {
         try {
             $estadisticas = $this->partidaModel->obtenerEstadisticas();

@@ -1,5 +1,9 @@
 <?php
 namespace App\Controllers;
+
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+
 use App\Models\JugadaModel;
 use App\Utils\ResponseUtil;
 
@@ -11,7 +15,7 @@ class JugadaController{
         $this->jugadaModel = new JugadaModel();
     }
 
-    public function jugar($req,$res)
+    public function jugar(Request $req, Response $res)
     {
         $data = $req->getParsedBody();
         $carta_id = $data['carta_id'];
@@ -117,7 +121,7 @@ class JugadaController{
         }
     }
 
-public function obtenerCartasEnMano($req,$res,$args)
+public function obtenerCartasEnMano(Request $req, Response $res, Array $args)
     {
         $usuario_id = $args['usuario'];
         $partida_id = $args['partida'];

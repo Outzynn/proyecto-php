@@ -11,13 +11,13 @@ class UsuarioModel {
         $this->pdo = Database::getInstance();
     }
 
-    public function existeUsuario($usuario) {
+    public function existeUsuario(string $usuario): bool {
         $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM usuario WHERE usuario = :usuario");
         $stmt->execute([':usuario' => $usuario]);
         return $stmt->fetchColumn() > 0;
     }
     
-    public function registrarUsuario($nombre, $usuario, $passwordHash) {
+    public function registrarUsuario(string $nombre, string $usuario, string $passwordHash): bool{
         $stmt = $this->pdo->prepare("INSERT INTO usuario (nombre, usuario, password) VALUES (:nombre, :usuario, :password)");
         return $stmt->execute([
             ':nombre' => $nombre,
@@ -26,7 +26,7 @@ class UsuarioModel {
         ]);
     }
     
-    public function obtenerUsuarioPorNombreYUsuario($nombre, $usuario) {
+    public function obtenerUsuarioPorNombreYUsuario(string $nombre, string $usuario): ?array {
         $stmt = $this->pdo->prepare("SELECT id, password, token, vencimiento_token FROM usuario WHERE usuario = :usuario AND nombre = :nombre");
         $stmt->execute([
             ':usuario' => $usuario,
@@ -35,7 +35,7 @@ class UsuarioModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function actualizarToken($id, $token, $expiracion) {
+    public function actualizarToken(int $id, string $token, int $expiracion): bool{
         $stmt = $this->pdo->prepare("UPDATE usuario SET token = :token, vencimiento_token = FROM_UNIXTIME(:exp) WHERE id = :id");
         return $stmt->execute([
             ':token' => $token,
@@ -43,13 +43,13 @@ class UsuarioModel {
             ':id' => $id
         ]);
     }
-    public function obtenerUsuarioPorId($id) {
+    public function obtenerUsuarioPorId(int $id): ?array {
         $stmt = $this->pdo->prepare("SELECT id, usuario, nombre FROM usuario WHERE id = :id");
         $stmt->execute([':id' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
-    public function editarUsuario($id, $nombre, $passwordHash) {
+    public function editarUsuario(int $id, string $nombre, string $passwordHash): bool {
         $stmt = $this->pdo->prepare("UPDATE usuario SET nombre = :nombre, password = :password WHERE id = :id");
         return $stmt->execute([
             ':nombre' => $nombre,

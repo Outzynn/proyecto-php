@@ -10,7 +10,7 @@ class JugadaModel{
         $this->pdo = DataBase::getInstance();
     }
 
-    public function partidaValida($id_partida)
+    public function partidaValida(int $id_partida):bool
     {
         $sql = "SELECT COUNT(*) FROM partida where id = :id AND estado = :estado";
         $stmt = $this->pdo->prepare($sql);
@@ -20,7 +20,7 @@ class JugadaModel{
         ]);
         return (int)$stmt->fetchColumn() > 0;
     }
-    public function validarPermisos($mazo_id,$usuario_id)
+    public function validarPermisos(int $mazo_id, int $usuario_id):bool
     {
         $sql = "SELECT usuario_id FROM mazo WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
@@ -33,7 +33,7 @@ class JugadaModel{
         return ((int)$usuario_id === (int)$usuario_del_mazo);
     }
 
-    public function cartaValida($carta_id, $mazo_id)
+    public function cartaValida(int $carta_id, int $mazo_id):bool
     {
         $sql = "SELECT COUNT(*) FROM mazo_carta WHERE carta_id = :carta_id AND estado = :estado AND mazo_id = :mazo_id";
         $stmt = $this->pdo->prepare($sql);
@@ -46,7 +46,7 @@ class JugadaModel{
         return ((int)$valida === 1);
     }
 
-    public function jugadaServidor($mazo_id): ?int {
+    public function jugadaServidor(int $mazo_id): ?int {
 
         $sql = "SELECT carta_id FROM mazo_carta WHERE mazo_id = :mazo_id AND estado = 'en_mano' ORDER BY RAND() LIMIT 1";
         $stmt = $this->pdo->prepare($sql);
@@ -59,14 +59,17 @@ class JugadaModel{
             return null;
         }
 
-        $sql = "UPDATE mazo_carta SET estado = 'descartado' WHERE carta_id = :id AND mazo_id = 1 ";
+        $sql = "UPDATE mazo_carta SET estado = 'descartado' WHERE carta_id = :id AND mazo_id = :mazo_id";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':id' => $id]);
+        $stmt->execute([
+            ':id' => $id,
+            ':mazo_id' => MAZO_SERVIDOR
+        ]);
 
         return (int) $id;
     }
 
-    public function obtenerInfoCarta($carta_id)
+    public function obtenerInfoCarta(int $carta_id):array
     {
         $sql = "SELECT id,nombre,ataque,ataque_nombre,atributo_id FROM carta WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
@@ -76,7 +79,7 @@ class JugadaModel{
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function hayVentaja($atributo_1,$atributo_2)
+    public function hayVentaja(int $atributo_1, int $atributo_2):bool
     {
         $sql = "SELECT COUNT(*) FROM gana_a WHERE atributo_id = :atributo_1 AND atributo_id2 = :atributo_2";
         $stmt = $this->pdo->prepare($sql);
@@ -87,7 +90,7 @@ class JugadaModel{
         return $stmt->fetchColumn() > 0;
     }
 
-    public function buscarMazo($partida_id)
+    public function buscarMazo(int $partida_id): ?int
     {
         $sql = "SELECT mazo_id FROM partida WHERE id = :id";
         $stmt = $this->pdo->prepare($sql);
@@ -97,7 +100,7 @@ class JugadaModel{
         return (int)$stmt->fetchColumn();
     }
 
-    public function actualizarCarta($mazo_id,$carta_id,$estado)
+    public function actualizarCarta(int $mazo_id, int $carta_id, string $estado)
     {
         $sql = "UPDATE mazo_carta SET estado = :estado WHERE carta_id  = :carta_id AND mazo_id = :mazo_id";
         $stmt = $this->pdo->prepare($sql);
@@ -109,7 +112,7 @@ class JugadaModel{
         return $stmt->rowCount() > 0;
     }
 
-    public function crearJugada($partida_id,$carta_servidor,$carta_id,$resultado)
+    public function crearJugada(int $partida_id, int $carta_servidor, int $carta_id, string $resultado):bool
     {
         $sql = "INSERT INTO jugada (partida_id,carta_id_a,carta_id_b,el_usuario) 
         VALUES (:partida_id,:carta_servidor,:carta_id,:resultado)";
@@ -123,7 +126,7 @@ class JugadaModel{
         return $stmt->rowCount() > 0;
     }
 
-    public function esUltima($partida_id)
+    public function esUltima(int $partida_id): bool
     {
         $sql = "SELECT COUNT(*) FROM jugada WHERE partida_id = :partida_id";
         $stmt = $this->pdo->prepare($sql);
@@ -131,13 +134,11 @@ class JugadaModel{
             ':partida_id' => $partida_id
         ]);
         $cantidad = (int)$stmt->fetchColumn();
-        if($cantidad === 5){
-            return true;
-        }
-        return false;
+
+        return ($cantidad === 5);
     }
 
-    public function guardarCartasEnMazo($mazo_id)
+    public function guardarCartasEnMazo(int $mazo_id): bool
     {
         $sql = "UPDATE mazo_carta SET estado = :estado WHERE mazo_id = :mazo_id";
         $stmt = $this->pdo->prepare($sql);
@@ -148,7 +149,7 @@ class JugadaModel{
         return $stmt->rowCount() > 0;
     }
 
-    public function resultadoPartida($partida_id)  //esto se podria mejorar para que el model no incluya logica y que de eso se encargue el controller.
+    public function resultadoPartida(int $partida_id): string  //esto se podria mejorar para que el model no incluya logica y que de eso se encargue el controller.
     {
         $sql = "SELECT COUNT(*) FROM jugada WHERE partida_id = :partida_id AND el_usuario = :estado";
         $stmt = $this->pdo->prepare($sql);
@@ -180,7 +181,7 @@ class JugadaModel{
         return $el_usuario;
     }
 
-    public function actualizarPartida($partida_id,$resultado)
+    public function actualizarPartida(int $partida_id, string $resultado): void
     {
         $sql = "UPDATE partida SET estado = :estado, el_usuario = :el_usuario WHERE id = :partida_id";
         $stmt = $this->pdo->prepare($sql);
@@ -191,7 +192,7 @@ class JugadaModel{
         ]);
     }
 
-    public function obtenerCartasEnMano($mazo_id)
+    public function obtenerCartasEnMano(int $mazo_id): array
     {
         $sql = "SELECT c.id, c.nombre, c.ataque, c.ataque_nombre, a.nombre AS atributo
         FROM carta c

@@ -1,6 +1,9 @@
 <?php
 namespace App\Controllers;
 
+use Psr\Http\Message\ResponseInterface as Response;
+use Psr\Http\Message\ServerRequestInterface as Request;
+
 use App\Models\MazoModel;
 use App\Utils\ResponseUtil;
 
@@ -12,7 +15,7 @@ class MazosController{
         $this->mazoModel = new MazoModel();
     }
 
-    public function crearMazo($req, $res)
+    public function crearMazo(Request $req, Response $res)
     {
         $data = $req->getParsedBody();
         $ids = $data['ids'];
@@ -57,7 +60,7 @@ class MazosController{
     }
 
 
-    public function borrarMazo($req, $res, $args)
+    public function borrarMazo(Request $req, Response $res, Array $args)
     {
         $usuarioID = $req->getAttribute('usuarioId');
         $idDelMazo = $args['mazo'];
@@ -87,7 +90,7 @@ class MazosController{
         }
     }
 
-    public function listadoMazos($req, $res, $args)
+    public function listadoMazos(Request $req, Response $res, Array $args)
     {
         $usuario = $args['usuario'];
         $usuario_auth = $req->getAttribute('usuarioId');
@@ -110,7 +113,7 @@ class MazosController{
         }
     }
 
-    public function actualizarMazo($req,$res,$args)
+    public function actualizarMazo(Request $req, Response $res, Array $args)
     {
         $data = $req->getParsedBody();
         $usuario_auth = $req->getAttribute('usuarioId');
