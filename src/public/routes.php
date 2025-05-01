@@ -19,6 +19,7 @@ return function ($app) {
         $route->put('', [new UsuarioController(), 'editarUsuario']);
         $route->get('', [new UsuarioController(), 'obtenerUsuario']);
         $route->get('/partida/{partida}/cartas', [new JugadaController(), 'obtenerCartasEnMano']);
+        $route->get('/mazos', [new MazosController(), 'listadoMazos']);
     })->add(new AuthMiddleware()); 
 
     $app->post('/partidas', [new PartidaController(), 'crearPartida'])->add(new AuthMiddleware());
@@ -29,8 +30,6 @@ return function ($app) {
         $route->delete('', [new MazosController(), 'borrarMazo']);
         $route->put('', [new MazosController(), 'actualizarMazo']);
     })->add(new AuthMiddleware());
-
-    $app->get('/usuarios/{usuario}/mazos', [new MazosController(), 'listadoMazos'])->add(new AuthMiddleware());
 
     $app->get('/cartas', [new CartaController(), 'listarCartas']);
 
