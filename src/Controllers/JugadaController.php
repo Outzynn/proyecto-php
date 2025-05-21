@@ -18,12 +18,16 @@ class JugadaController{
     public function jugar(Request $req, Response $res)
     {
         $data = $req->getParsedBody();
-        $carta_id = $data['carta_id'];
-        $partida_id = $data['partida_id'];
+        $carta_id = $data['carta_id'] ?? null;
+        $partida_id = $data['partida_id'] ?? null;
         $id_auth = $req->getAttribute('usuarioId');
 
-        if(!is_numeric($carta_id) || !is_numeric($partida_id)){
-            return ResponseUtil::crearRespuesta($res,["error" => "Carta o partida no validas."]);
+        if(!is_numeric($carta_id)){
+            return ResponseUtil::crearRespuesta($res,["error" => "Carta no valida o no enviada."]);
+        }
+
+        if(!is_numeric($partida_id)){
+            return ResponseUtil::crearRespuesta($res,["error" => "Partida no valida o no enviada."]);
         }
 
         try{
@@ -123,8 +127,8 @@ class JugadaController{
 
 public function obtenerCartasEnMano(Request $req, Response $res, Array $args)
     {
-        $usuario_id = $args['usuario'];
-        $partida_id = $args['partida'];
+        $usuario_id = $args['usuario'] ?? null;
+        $partida_id = $args['partida'] ?? null;
         $usuario_auth = $req->getAttribute('usuarioId');
 
         if( !is_numeric($usuario_id) || !is_numeric($partida_id)){

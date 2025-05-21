@@ -38,7 +38,7 @@ class MazoModel {
     }
 
     public function cartasValidas(array $ids):bool {
-        if (count($ids) > 5 || count($ids) !== count(array_unique($ids))) {
+        if (count($ids) != 5 || count($ids) !== count(array_unique($ids))) {
             return false;
         }
 

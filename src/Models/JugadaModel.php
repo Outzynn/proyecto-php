@@ -192,7 +192,7 @@ class JugadaModel{
         ]);
     }
 
-    public function obtenerCartasEnMano(int $mazo_id): array
+    public function obtenerCartasEnMano(int $mazo_id): array //sacar todo lo que no sea id o atributo.
     {
         $sql = "SELECT c.id, c.nombre, c.ataque, c.ataque_nombre, a.nombre AS atributo
         FROM carta c

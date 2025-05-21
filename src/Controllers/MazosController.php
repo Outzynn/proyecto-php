@@ -18,8 +18,8 @@ class MazosController{
     public function crearMazo(Request $req, Response $res)
     {
         $data = $req->getParsedBody();
-        $ids = $data['ids'];
-        $nombre = $data['nombre'];
+        $ids = $data['ids'] ?? null;
+        $nombre = $data['nombre'] ?? null;
         $usuario = $req->getAttribute('usuarioId');
 
         $error = $this->validarDatos($ids, $nombre, $usuario);

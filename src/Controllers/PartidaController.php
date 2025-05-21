@@ -14,7 +14,7 @@ class PartidaController {
         $this->partidaModel = new PartidaModel();
     }
 
-    public function crearPartida(Request $req, Response $res) {
+    public function crearPartida(Request $req, Response $res) { //Deberia devolver más información de las cartas del mazo del usuario, no solo el id 
         $data = $req->getParsedBody();
         $idMazo = $data['idDelMazo'] ?? null;
         $usuarioId = $req->getAttribute("usuarioId");
