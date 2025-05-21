@@ -45,7 +45,7 @@ class LoginController {
                     $this->usuarioModel->actualizarToken($usuarioEncontrado['id'], $token, $expiracion);
                 }
 
-                return ResponseUtil::crearRespuesta($res, [   //deberia sumar el id del usuario para poder usarlo en los otros servicios. (me parece mala practica pero lo hacemos para no cambiar la documentacion)
+                return ResponseUtil::crearRespuesta($res, [  
                     "token" => $token,
                     "expiracion" => date('Y-m-d H:i:s', $expiracion),
                     "id_usuario" => $usuarioEncontrado['id']
