@@ -17,16 +17,16 @@ class LoginController {
 
     public function logearUsuario(Request $req, Response $res) {
         $data = $req->getParsedBody();
-        $nombre = $data['nombre'] ?? null;
+        //$nombre = $data['nombre'] ?? null;
         $usuario = $data['usuario'] ?? null;
         $password = $data['password'] ?? null;
 
-        if (!$nombre || !$usuario || !$password) {
-            return ResponseUtil::crearRespuesta($res, ["error" => "Faltan datos. Nombre, usuario y password son requeridos."], 400);
+        if (!$usuario || !$password) {
+            return ResponseUtil::crearRespuesta($res, ["error" => "Faltan datos. Usuario y password son requeridos."], 400);
         }
 
         try {
-            $usuarioEncontrado = $this->usuarioModel->obtenerUsuarioPorNombreYUsuario($nombre, $usuario);
+            $usuarioEncontrado = $this->usuarioModel->obtenerUsuarioPorUsuario($usuario);
 
             if ($usuarioEncontrado && password_verify($password, $usuarioEncontrado['password'])) {
                 $expiracion = time() + 3600;
@@ -46,10 +46,13 @@ class LoginController {
                 }
 
                 return ResponseUtil::crearRespuesta($res, [  
+                    "usuario" => [
+                        "id" => $usuarioEncontrado['id'],
+                        "nombre" => $usuarioEncontrado['nombre']
+                    ],
                     "token" => $token,
-                    "expiracion" => date('Y-m-d H:i:s', $expiracion),
-                    "id_usuario" => $usuarioEncontrado['id']
                 ]);
+
             } else {
                 return ResponseUtil::crearRespuesta($res, ["error" => "Credenciales incorrectas"], 401);
             }
