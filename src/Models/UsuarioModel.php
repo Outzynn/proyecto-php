@@ -26,13 +26,13 @@ class UsuarioModel {
         ]);
     }
     
-    public function obtenerUsuarioPorNombreYUsuario(string $nombre, string $usuario): ?array {
-        $stmt = $this->pdo->prepare("SELECT id, password, token, vencimiento_token FROM usuario WHERE usuario = :usuario AND nombre = :nombre");
+    public function obtenerUsuarioPorUsuario(string $usuario): ?array {
+        $stmt = $this->pdo->prepare("SELECT id, nombre, password, token, vencimiento_token FROM usuario WHERE usuario = :usuario");
         $stmt->execute([
             ':usuario' => $usuario,
-            ':nombre' => $nombre,
         ]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $resultado === false ? null : $resultado;
     }
 
     public function actualizarToken(int $id, string $token, int $expiracion): bool{
