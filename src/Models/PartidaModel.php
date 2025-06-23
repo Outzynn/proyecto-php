@@ -57,13 +57,14 @@ class PartidaModel {
 
     public function obtenerEstadisticas(): array{
         $sql = "
-            SELECT 
-                usuario_id,
-                SUM(CASE WHEN el_usuario = 'gano' THEN 1 ELSE 0 END) AS partidas_ganadas,
-                SUM(CASE WHEN el_usuario = 'perdio' THEN 1 ELSE 0 END) AS partidas_perdidas,
-                SUM(CASE WHEN el_usuario = 'empato' THEN 1 ELSE 0 END) AS partidas_empatadas
-            FROM partida
-            GROUP BY usuario_id
+                SELECT 
+                u.nombre,
+                SUM(CASE WHEN p.el_usuario = 'gano' THEN 1 ELSE 0 END) AS partidas_ganadas,
+                SUM(CASE WHEN p.el_usuario = 'perdio' THEN 1 ELSE 0 END) AS partidas_perdidas,
+                SUM(CASE WHEN p.el_usuario = 'empato' THEN 1 ELSE 0 END) AS partidas_empatadas
+            FROM partida p
+            JOIN usuario u ON p.usuario_id = u.id
+            GROUP BY u.nombre
         ";
         $stmt = $this->pdo->query($sql);
 
