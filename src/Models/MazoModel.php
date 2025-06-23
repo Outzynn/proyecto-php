@@ -93,4 +93,20 @@ class MazoModel {
             return $stmt->rowCount() > 0;
     }
     
+    public function buscarCartasDelMazo(int $mazo_id){
+        $sql = "SELECT 
+                    c.nombre, c.ataque, c.ataque_nombre, 
+                    a.nombre AS atributo_nombre
+                FROM carta c
+                JOIN mazo_carta mc ON c.id = mc.carta_id
+                JOIN atributo a ON c.atributo_id = a.id
+                WHERE mc.mazo_id = :mazoId
+        ";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'mazoId' => $mazo_id
+        ]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    }
 }

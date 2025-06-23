@@ -138,4 +138,25 @@ class MazosController{
             return ResponseUtil::crearRespuesta($res, ['error' => "Error al actualizar: " . $e->getMessage()], 500);
         }
     }
+
+    public function listarCartasDelMazo(Request $req, Response $res, Array $args){
+        $mazoId = $args['mazo'];
+        $usuario_auth = $req->getAttribute('usuarioId');
+
+        try{
+            $auth = $this->mazoModel->mazoPerteneceAUsuario($mazoId,$usuario_auth);
+            if(!$auth){
+                return ResponseUtil::crearRespuesta($res, ["error" => 'No tenes permisos para ver las cartas de este mazo'], 401);
+            }
+            $cartas = $this->mazoModel->buscarCartasDelMazo($mazoId);
+
+            if (empty($cartas)) {
+                return ResponseUtil::crearRespuesta($res, ['mensaje' => 'No existen cartas en este mazo.']);
+            }
+            return ResponseUtil::crearRespuesta($res, $cartas);
+
+        } catch (\Exception $e) {
+            return ResponseUtil::crearRespuesta($res, ['error' => $e->getMessage()], 500);
+        }
+    }
 }

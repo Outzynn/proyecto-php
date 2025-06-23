@@ -29,6 +29,7 @@ return function ($app) {
     $app->group('/mazos/{mazo}', function ($route) {
         $route->delete('', [new MazosController(), 'borrarMazo']);
         $route->put('', [new MazosController(), 'actualizarMazo']);
+        $route->get('', [new MazosController(), "listarCartasDelMazo"]);
     })->add(new AuthMiddleware());
 
     $app->get('/cartas', [new CartaController(), 'listarCartas']);
@@ -36,4 +37,5 @@ return function ($app) {
     $app->get('/estadisticas', [new PartidaController(),'obtenerEstadisticas']);
 
     $app->post('/jugadas', [new JugadaController(),'jugar'])->add(new AuthMiddleware());
+
 };
