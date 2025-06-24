@@ -103,7 +103,7 @@ class MazosController{
             $mazos = $this->mazoModel->obtenerMazosPorUsuario($usuario_auth);
 
             if (empty($mazos)) {
-                return ResponseUtil::crearRespuesta($res, ["mensaje" => "Este usuario no tiene mazos creados."],400);
+                return ResponseUtil::crearRespuesta($res, ["error" => "Este usuario no tiene mazos creados."],404);
             }
 
             return ResponseUtil::crearRespuesta($res, $mazos);
