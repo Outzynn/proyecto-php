@@ -130,15 +130,17 @@ public function obtenerCartasEnMano(Request $req, Response $res, Array $args)
         if( !is_numeric($usuario_id) || !is_numeric($partida_id)){
             return ResponseUtil::crearRespuesta($res,["error" => "Usuario o partida no proporcionados o formato invalido."]);
         }
-        if($usuario_id != $usuario_auth){
+        if(($usuario_id != $usuario_auth) && ($usuario_id != MAZO_SERVIDOR)){
             return ResponseUtil::crearRespuesta($res,["error" => "No tienes permisos para obtener las cartas de este usuario."],401);
         }
 
         try{
-            if(!$this->jugadaModel->pertenecePartida($usuario_auth,$partida_id)){
-                return ResponseUtil::crearRespuesta($res,["error" => "La partida no le pertenece al usuario."],401);
+            if($usuario_id != MAZO_SERVIDOR){
+                if(!$this->jugadaModel->pertenecePartida($usuario_auth,$partida_id)){
+                    return ResponseUtil::crearRespuesta($res,["error" => "La partida no le pertenece al usuario."],401);
+                }
             }
-        
+            
             if(!$this->jugadaModel->partidaValida($partida_id)){
                 return ResponseUtil::crearRespuesta($res,["error" => "La partida no es valida."],400);
             }
