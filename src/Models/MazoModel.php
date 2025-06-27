@@ -95,7 +95,7 @@ class MazoModel {
     
     public function buscarCartasDelMazo(int $mazo_id){
         $sql = "SELECT 
-                    c.nombre, c.ataque, c.ataque_nombre, 
+                    c.id, c.nombre, c.ataque, c.ataque_nombre, 
                     a.nombre AS atributo_nombre,
                     c.imagen AS imagen_blob
                 FROM carta c
