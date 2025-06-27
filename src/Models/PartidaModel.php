@@ -70,4 +70,13 @@ class PartidaModel {
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function partidaEnCurso(): bool {
+        $sql = " SELECT COUNT(*) FROM partida WHERE estado = :estado";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':estado' => "en_curso"
+        ]);
+        return $stmt->fetchColumn() > 0;
+    }
 }

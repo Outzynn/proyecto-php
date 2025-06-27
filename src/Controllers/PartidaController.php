@@ -24,6 +24,10 @@ class PartidaController {
         }
 
         try {
+            if($this->partidaModel->partidaEnCurso()){
+                return ResponseUtil::crearRespuesta($res,["error" => "Partida en curso del servidor, no se puede crear."],400);
+            }
+
             if (!$this->partidaModel->mazoPerteneceAlUsuario($idMazo, $usuarioId)) {
                 return ResponseUtil::crearRespuesta($res, ["error" => "El mazo no pertenece al usuario logeado."], 401);
             }
