@@ -19,12 +19,12 @@ class CartaModel {
                 WHERE 1=1";
         $params = [];
     
-        if ($atributo !== null) {
+        if ($atributo !== null && $atributo!="") {
             $sql .= " AND atributo.nombre = :atributo";
             $params[':atributo'] = $atributo;
         }
     
-        if ($nombre !== null) {
+        if ($nombre !== null && $nombre != "") {
             $sql .= " AND carta.nombre LIKE :nombre";
             $params[':nombre'] = '%' . $nombre . '%';
         }
