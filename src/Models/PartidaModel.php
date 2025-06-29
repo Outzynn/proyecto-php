@@ -79,4 +79,19 @@ class PartidaModel {
         ]);
         return $stmt->fetchColumn() > 0;
     }
+
+    public function duenioDeLaPartida():int {
+        $sql = "SELECT usuario_id FROM partida WHERE estado = :estado LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':estado' => "en_curso"
+        ]);
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($resultado && isset($resultado['usuario_id'])) {
+            return (int) $resultado['usuario_id'];
+        }
+        else{
+            return 0;
+        }
+    }
 }

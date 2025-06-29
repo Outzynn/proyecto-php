@@ -38,4 +38,7 @@ return function ($app) {
 
     $app->post('/jugadas', [new JugadaController(),'jugar'])->add(new AuthMiddleware());
 
+    $app->get('/partida-en-curso', [new PartidaController(), 'enCurso']);
+
+    $app->get('/partida-pertenece', [new PartidaController(), 'pertenece'])->add(new AuthMiddleware());
 };
