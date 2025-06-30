@@ -96,8 +96,7 @@ class MazoModel {
     public function buscarCartasDelMazo(int $mazo_id){
         $sql = "SELECT 
                     c.id, c.nombre, c.ataque, c.ataque_nombre, 
-                    a.nombre AS atributo_nombre,
-                    c.imagen AS imagen_blob
+                    a.nombre AS atributo_nombre
                 FROM carta c
                 JOIN mazo_carta mc ON c.id = mc.carta_id
                 JOIN atributo a ON c.atributo_id = a.id
@@ -109,16 +108,6 @@ class MazoModel {
         ]);
 
         $cartas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach ($cartas as &$carta) {
-            if (!empty($carta['imagen_blob'])) {
-                $carta['imagen'] = base64_encode($carta['imagen_blob']);
-            } else {
-                $carta['imagen'] = null;
-            }
-            unset($carta['imagen_blob']);
-        }
-
         return $cartas;
 
     }
