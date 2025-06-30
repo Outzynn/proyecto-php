@@ -194,18 +194,24 @@ class JugadaModel{
 
     public function obtenerCartasEnMano(int $mazo_id): array
     {
-        $sql = "SELECT a.nombre AS atributo
-        FROM carta c
-        JOIN mazo_carta mc ON c.id = mc.carta_id
-        JOIN atributo a ON c.atributo_id = a.id
-        WHERE mc.mazo_id = :mazo_id
-          AND mc.estado = 'en_mano'";
-    
+        $sql = "SELECT 
+                c.id,
+                c.nombre,
+                c.ataque,
+                c.ataque_nombre,
+                a.nombre AS atributo_nombre
+            FROM carta c
+            JOIN mazo_carta mc ON c.id = mc.carta_id
+            JOIN atributo a ON c.atributo_id = a.id
+            WHERE mc.mazo_id = :mazo_id
+              AND mc.estado = 'en_mano'";
+
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([':mazo_id' => $mazo_id]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    
     public function pertenecePartida(int $user_id,  int $partida_id):bool
     {
         $sql = "SELECT COUNT(*) FROM partida WHERE id = :id AND usuario_id = :usuario_id";
