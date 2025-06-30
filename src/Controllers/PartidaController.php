@@ -69,23 +69,26 @@ class PartidaController {
     }
 
     public function enCurso(Request $req, Response $res){
-        $respuesta = $this->partidaModel->partidaEnCurso();
-        return ResponseUtil::crearRespuesta($res,["en_curso" => $respuesta]);
-    }
-
-    public function pertenece(Request $req, Response $res){
         $usuario_id = $req->getAttribute("usuarioId");
-        try{
-            $duenio = $this->partidaModel->duenioDeLaPartida();
 
-            if($duenio == $usuario_id){
-                return ResponseUtil::crearRespuesta($res,["ok" => true]);
-            }
-            else{
-                return ResponseUtil::crearRespuesta($res,["error" => "El usuario no tiene permisos para entrar a la partida ya creada."],401);
-            }
-        }catch(\PDOException $e){
-            return ResponseUtil::crearRespuesta($res, ['error' => "Error al obtener el propietario de la partida."], 500);
+        $en_curso = $this->partidaModel->partidaEnCurso();
+
+        if($this->partidaModel->duenioDeLaPartida() === $usuario_id){
+            $pertenece = true;
+        }else{
+            $pertenece = false;
         }
+
+        $mazo_id = $this->partidaModel->mazoDeLaPartida();
+        $id_partida = $this->partidaModel->idDeLaPartidaEnCurso();
+
+        $respuesta=[
+            "id" => $id_partida,
+            "en_curso" => $en_curso,
+            "pertenece" => $pertenece,
+            "mazo_id" => $mazo_id
+        ];
+        return ResponseUtil::crearRespuesta($res,$respuesta);
     }
+
 }

@@ -107,20 +107,33 @@ class PartidaModel {
         return $stmt->fetchColumn() > 0;
     }
 
-    public function duenioDeLaPartida():int {
+    public function duenioDeLaPartida() {
         $sql = "SELECT usuario_id FROM partida WHERE estado = :estado LIMIT 1";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             ':estado' => "en_curso"
         ]);
         $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($resultado && isset($resultado['usuario_id'])) {
-            return (int) $resultado['usuario_id'];
+        if($resultado){
+            return $resultado["usuario_id"];
         }
-        else{
-            return 0;
-        }
+        return null;
     }
+
+    public function idDeLaPartidaEnCurso(){
+        $sql = "SELECT id FROM partida WHERE estado = :estado LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':estado' => "en_curso"
+        ]);
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+        if($resultado){
+            return $resultado["id"];
+        }
+        return null;
+    }
+
+
 
     public function mazoDeLaPartida(){
         $sql = "SELECT mazo_id FROM partida WHERE estado = :estado LIMIT 1";
