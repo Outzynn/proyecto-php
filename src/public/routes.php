@@ -18,7 +18,7 @@ return function ($app) {
     $app->group('/usuarios/{usuario}', function ($route) { 
         $route->put('', [new UsuarioController(), 'editarUsuario']);
         $route->get('', [new UsuarioController(), 'obtenerUsuario']);
-        $route->get('/partida/{partida}/cartas', [new JugadaController(), 'obtenerCartasEnMano']);
+        $route->get('/partidas/{partida}/cartas', [new JugadaController(), 'obtenerCartasEnMano']);
         $route->get('/mazos', [new MazosController(), 'listadoMazos']);
     })->add(new AuthMiddleware()); 
 
@@ -38,7 +38,6 @@ return function ($app) {
 
     $app->post('/jugadas', [new JugadaController(),'jugar'])->add(new AuthMiddleware());
 
-    $app->get('/partida-en-curso', [new PartidaController(), 'enCurso']);
+    $app->get('/partida-en-curso', [new PartidaController(), 'enCurso'])->add(new AuthMiddleware());
 
-    $app->get('/partida-pertenece', [new PartidaController(), 'pertenece'])->add(new AuthMiddleware());
 };
