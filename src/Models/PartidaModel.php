@@ -48,11 +48,23 @@ class PartidaModel {
         $stmt->execute([':idMazo' => $mazoId]);
     }
 
-    public function obtenerCartasDelMazo(int $mazoId): array {
-        $sql = "SELECT carta_id FROM mazo_carta WHERE mazo_id = :idMazo";
+    public function obtenerCartasDelMazo(int $mazo_id){
+        $sql = "SELECT 
+                    c.id, c.nombre, c.ataque, c.ataque_nombre, 
+                    a.nombre AS atributo_nombre
+                FROM carta c
+                JOIN mazo_carta mc ON c.id = mc.carta_id
+                JOIN atributo a ON c.atributo_id = a.id
+                WHERE mc.mazo_id = :mazoId
+        ";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([':idMazo' => $mazoId]);
-        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $stmt->execute([
+            'mazoId' => $mazo_id
+        ]);
+
+        $cartas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $cartas;
+
     }
 
     public function obtenerEstadisticas(): array{
@@ -69,6 +81,21 @@ class PartidaModel {
         $stmt = $this->pdo->query($sql);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function idPartidaEnCurso(): int {
+        $sql = "SELECT id FROM partida WHERE estado = :estado LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':estado' => "en_curso"
+        ]);
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($resultado && isset($resultado['id'])) {
+            return (int) $resultado['id'];
+        }
+        else{
+            return 0;
+        }
     }
 
     public function partidaEnCurso(): bool {
@@ -94,4 +121,18 @@ class PartidaModel {
             return 0;
         }
     }
+
+    public function mazoDeLaPartida(){
+        $sql = "SELECT mazo_id FROM partida WHERE estado = :estado LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            ':estado' => "en_curso"
+        ]);
+        $respuesta = $stmt->fetch(PDO::FETCH_ASSOC);
+        if($respuesta){
+            return $respuesta["mazo_id"];
+        }
+        return null;
+    }
 }
+
