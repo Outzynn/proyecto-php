@@ -73,11 +73,11 @@ class JugadaController{
             }
 
             $respuesta = [
-                'carta_jugada_por_servidor' => $carta_servidor,
-                'carta_jugada_por_el_jugador' => $carta_jugador,
-                'puntos_de_fuerza_carta_jugador' => $puntos_jugador,
-                'puntos_de_fuerza_carta_servidor' => $puntos_servidor,
-                'el usuario' => $resultado
+                'carta_servidor' => $carta_servidor,
+                'fuerza_jugador' => $puntos_jugador,
+                'fuerza_servidor' => $puntos_servidor,
+                'fuerza_total' => $puntos_servidor + $puntos_jugador,
+                'el_usuario' => $resultado
             ];
 
             if($this->jugadaModel->esUltima($partida_id)){
@@ -85,6 +85,7 @@ class JugadaController{
                 $this->jugadaModel->guardarCartasEnMazo(MAZO_SERVIDOR);
                 $resultado_usuario = $this->jugadaModel->resultadoPartida($partida_id);
                 $this->jugadaModel->actualizarPartida($partida_id,$resultado_usuario);
+                $respuesta['ultima_ronda'] = true;
                 $respuesta['gano_el_juego'] = $this->quienGano($resultado_usuario);
             }
 
@@ -145,18 +146,24 @@ public function obtenerCartasEnMano(Request $req, Response $res, Array $args)
                 return ResponseUtil::crearRespuesta($res,["error" => "La partida no es valida."],400);
             }
             
-            $mazo_id = $this->jugadaModel->buscarMazo($partida_id);
-            if(!$mazo_id){
-                return ResponseUtil::crearRespuesta($res,["error" => "Mazo de la partida no encontrado."],400);
-            }
+            if($usuario_id != MAZO_SERVIDOR){
+                $mazo_id = $this->jugadaModel->buscarMazo($partida_id);
+                if(!$mazo_id){
+                    return ResponseUtil::crearRespuesta($res,["error" => "Mazo de la partida no encontrado."],400);
+                }
 
-            $cartas_en_mano = $this->jugadaModel->obtenerCartasEnMano($mazo_id);
-            if(!$cartas_en_mano){
-                return ResponseUtil::crearRespuesta($res,["error" => "No hay cartas en mano."],400);
+                $cartas_en_mano = $this->jugadaModel->obtenerCartasEnMano($mazo_id);
+                if(!$cartas_en_mano){
+                    return ResponseUtil::crearRespuesta($res,["error" => "No hay cartas en mano."],400);
+                }
+            }else{
+                $cartas_en_mano = $this->jugadaModel->obtenerCartasEnMano(MAZO_SERVIDOR);
+                if(!$cartas_en_mano){
+                    return ResponseUtil::crearRespuesta($res,["error" => "No hay cartas en mano."],400);
+                }
             }
-
+    
             $data = [
-                'mensaje' => 'Estas son las cartas en mano del usuario:',
                 'cartas' => $cartas_en_mano
             ];
             return ResponseUtil::crearRespuesta($res,$data,200);
