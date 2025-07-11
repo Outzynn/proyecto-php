@@ -69,9 +69,19 @@ class JugadaModel{
         return (int) $id;
     }
 
-    public function obtenerInfoCarta(int $carta_id):array
+    public function obtenerInfoCarta(int $carta_id): array
     {
-        $sql = "SELECT id,nombre,ataque,ataque_nombre,atributo_id FROM carta WHERE id = :id";
+        $sql = "SELECT 
+                    carta.id, 
+                    carta.nombre, 
+                    carta.ataque, 
+                    carta.ataque_nombre, 
+                    carta.atributo_id, 
+                    atributo.nombre AS atributo_nombre
+                FROM carta 
+                JOIN atributo ON carta.atributo_id = atributo.id
+                WHERE carta.id = :id";
+
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
             ':id' => $carta_id

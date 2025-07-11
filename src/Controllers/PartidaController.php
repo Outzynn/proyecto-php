@@ -24,14 +24,14 @@ class PartidaController {
         }
 
         try {
-            if($this->partidaModel->partidaEnCurso()){
-                return ResponseUtil::crearRespuesta($res,["error" => "Partida en curso del servidor, no se puede crear."],400);
-            }
-
             if (!$this->partidaModel->mazoPerteneceAlUsuario($idMazo, $usuarioId)) {
                 return ResponseUtil::crearRespuesta($res, ["error" => "El mazo no pertenece al usuario logeado."], 401);
             }
 
+            if($this->partidaModel->partidaEnCurso($usuarioId)){
+                $this->partidaModel->terminarPartidas($usuarioId);
+            }
+            
             if($this->partidaModel->mazoEnUso($idMazo)){
                 return ResponseUtil::crearRespuesta($res, ["error" => "El mazo ya esta en uso."], 400);
             }
@@ -59,36 +59,12 @@ class PartidaController {
                 return ResponseUtil::crearRespuesta($res, ["error" => "No se pudieron obtener las estadísticas"], 400);
             }
 
-            // Responder con las estadísticas
             return ResponseUtil::crearRespuesta($res, [
                 "estadisticas" => $estadisticas
             ]);
         } catch (\PDOException $e) {
             return ResponseUtil::crearRespuesta($res, ['error' => "Error al obtener estadísticas: " . $e->getMessage()], 500);
         }
-    }
-
-    public function enCurso(Request $req, Response $res){
-        $usuario_id = $req->getAttribute("usuarioId");
-
-        $en_curso = $this->partidaModel->partidaEnCurso();
-
-        if($this->partidaModel->duenioDeLaPartida() === $usuario_id){
-            $pertenece = true;
-        }else{
-            $pertenece = false;
-        }
-
-        $mazo_id = $this->partidaModel->mazoDeLaPartida();
-        $id_partida = $this->partidaModel->idDeLaPartidaEnCurso();
-
-        $respuesta=[
-            "id" => $id_partida,
-            "en_curso" => $en_curso,
-            "pertenece" => $pertenece,
-            "mazo_id" => $mazo_id
-        ];
-        return ResponseUtil::crearRespuesta($res,$respuesta);
     }
 
 }

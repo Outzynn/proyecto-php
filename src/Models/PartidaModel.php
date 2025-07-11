@@ -83,69 +83,28 @@ class PartidaModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function idPartidaEnCurso(): int {
-        $sql = "SELECT id FROM partida WHERE estado = :estado LIMIT 1";
+    public function partidaEnCurso($usuarioId): bool {
+        $sql = " SELECT COUNT(*) FROM partida WHERE estado = :estado AND usuario_id = :usuario";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            ':estado' => "en_curso"
-        ]);
-        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-        if ($resultado && isset($resultado['id'])) {
-            return (int) $resultado['id'];
-        }
-        else{
-            return 0;
-        }
-    }
-
-    public function partidaEnCurso(): bool {
-        $sql = " SELECT COUNT(*) FROM partida WHERE estado = :estado";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':estado' => "en_curso"
+            ':estado' => "en_curso",
+            'usuario' => $usuarioId
         ]);
         return $stmt->fetchColumn() > 0;
     }
 
-    public function duenioDeLaPartida() {
-        $sql = "SELECT usuario_id FROM partida WHERE estado = :estado LIMIT 1";
+    public function terminarPartidas($usuarioId){
+        $sql = "UPDATE partida 
+                SET estado = :finalizado, el_usuario = :perdio 
+                WHERE estado = :encurso AND usuario_id = :usuario";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
-            ':estado' => "en_curso"
+            ':finalizado' => 'finalizada',
+            ':perdio' => 'perdio',
+            ':encurso' => 'en_curso',
+            ':usuario' => $usuarioId
         ]);
-        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-        if($resultado){
-            return $resultado["usuario_id"];
-        }
-        return null;
     }
 
-    public function idDeLaPartidaEnCurso(){
-        $sql = "SELECT id FROM partida WHERE estado = :estado LIMIT 1";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':estado' => "en_curso"
-        ]);
-        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-        if($resultado){
-            return $resultado["id"];
-        }
-        return null;
-    }
-
-
-
-    public function mazoDeLaPartida(){
-        $sql = "SELECT mazo_id FROM partida WHERE estado = :estado LIMIT 1";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            ':estado' => "en_curso"
-        ]);
-        $respuesta = $stmt->fetch(PDO::FETCH_ASSOC);
-        if($respuesta){
-            return $respuesta["mazo_id"];
-        }
-        return null;
-    }
 }
 

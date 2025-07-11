@@ -37,7 +37,4 @@ return function ($app) {
     $app->get('/estadisticas', [new PartidaController(),'obtenerEstadisticas']);
 
     $app->post('/jugadas', [new JugadaController(),'jugar'])->add(new AuthMiddleware());
-
-    $app->get('/partida-en-curso', [new PartidaController(), 'enCurso'])->add(new AuthMiddleware());
-
 };
