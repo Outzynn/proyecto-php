@@ -49,13 +49,31 @@ class UsuarioModel {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
     
-    public function editarUsuario(int $id, string $nombre, string $passwordHash): bool {
-        $stmt = $this->pdo->prepare("UPDATE usuario SET nombre = :nombre, password = :password WHERE id = :id");
-        return $stmt->execute([
-            ':nombre' => $nombre,
-            ':password' => $passwordHash,
-            ':id' => $id
-        ]);
+    public function editarUsuario(int $id, ?string $nombre, ?string $password): bool {
+        $sql = "UPDATE usuario SET ";
+        $params = [];
+        $set = [];
+
+        if (!is_null($nombre) && trim($nombre) !== '') {
+            $set[] = "nombre = :nombre";
+            $params[':nombre'] = trim($nombre);
+        }
+
+        if (!is_null($password) && trim($password) !== '') {
+            $set[] = "password = :password";
+            $params[':password'] = password_hash($password, PASSWORD_DEFAULT);
+        }
+
+        if (empty($set)) {
+            return false;
+        }
+
+        $sql .= implode(", ", $set);
+        $sql .= " WHERE id = :id";
+        $params[':id'] = $id;
+
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute($params);
     }
     
 }

@@ -27,19 +27,20 @@ class UsuarioController {
             return ResponseUtil::crearRespuesta($res, ["error" => "No tienes permiso para editar este usuario"], 401);
         }
 
-        if (empty($nombre) || empty($password)) {
-            return ResponseUtil::crearRespuesta($res, ["error" => "Faltan datos: nombre y password nuevos son requeridos"], 400);
+        if ((is_null($nombre) || trim($nombre) === '') && (is_null($password) || trim($password) === '')) {
+            return ResponseUtil::crearRespuesta($res, ["error" => "Faltan datos: nombre o password nuevos son requeridos"], 400);
         }
 
-        if (!ValidationUtil::validarClave($password)) {
-            return ResponseUtil::crearRespuesta($res, ["error" => "La contraseña debe tener por lo menos 8 caracteres y contener mayúsculas, minúsculas, números y caracteres especiales."], 400);
+        if($password){
+            if (!ValidationUtil::validarClave($password)) {
+                return ResponseUtil::crearRespuesta($res, ["error" => "La contraseña debe tener por lo menos 8 caracteres y contener mayúsculas, minúsculas, números y caracteres especiales."], 400);
+            }
         }
-
+        
         try {
-            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-            $this->usuarioModel->editarUsuario($usuarioId, $nombre, $passwordHash);
-
+            $this->usuarioModel->editarUsuario($usuarioId, $nombre, $password);
             return ResponseUtil::crearRespuesta($res, ["mensaje" => "Usuario actualizado correctamente"]);
+
         } catch (\PDOException $e) {
             return ResponseUtil::crearRespuesta($res, ["error" => "Error al actualizar el usuario: " . $e->getMessage()], 500);
         }
